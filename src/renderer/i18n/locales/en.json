@@ -35,5 +35,55 @@
     "yes": "Yes",
     "no": "No"
   },
+  "auth": {
+    "appName": "Eilaf POS",
+    "footer": "Eilaf POS App © {{year}}",
+    "subtitle": {
+      "login": "Sign in to your account",
+      "forgot": "Reset your password",
+      "otp": "Enter verification code",
+      "reset": "Set new password"
+    },
+    "login": {
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "error": "Login failed. Please try again."
+    },
+    "forgot": {
+      "hint": "Enter your account email and we'll send you a 6-digit verification code.",
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send code",
+      "back": "Back to sign in",
+      "error": "Failed to send code. Please try again."
+    },
+    "otp": {
+      "codeSent": "A 6-digit code was sent to your email.",
+      "codeResent": "A new code was sent to your email.",
+      "label": "6-digit code",
+      "placeholder": "123456",
+      "submit": "Verify code",
+      "back": "Back",
+      "resend": "Resend code",
+      "error": "Invalid or expired code.",
+      "resendError": "Failed to resend code."
+    },
+    "reset": {
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Set new password",
+      "mismatch": "Passwords do not match.",
+      "tooShort": "Password must be at least 6 characters.",
+      "error": "Failed to reset password.",
+      "success": "Password updated successfully. Please sign in."
+    }
+  },
   "sample": "This is a sample text to demonstrate the English translation. You can replace this with any text you want to display in English."
 }

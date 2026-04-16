@@ -4,15 +4,15 @@ import {
   EyeSlashIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 import Button from '@components/ui/Button';
 import TextField from '@components/ui/TextField';
 import { useAuth } from '@contexts/AuthContext';
 
-import logo from '../../../../assets/logo.png';
-
-type View = 'login' | 'forgot' | 'otp' | 'reset';
+import logo from '../../../../assets/icon.png';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const {
     signIn,
     sendPasswordResetOtp,
@@ -20,18 +20,17 @@ export default function LoginPage() {
     completePasswordReset,
   } = useAuth();
 
-  const [view, setView] = useState<View>('login');
+  const [view, setView] = useState<'login' | 'forgot' | 'otp' | 'reset'>(
+    'login',
+  );
 
-  // Login
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Forgot / OTP
   const [forgotEmail, setForgotEmail] = useState('');
   const [otp, setOtp] = useState('');
 
-  // Reset
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -52,9 +51,7 @@ export default function LoginPage() {
     try {
       await signIn(email, password);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Login failed. Please try again.',
-      );
+      setError(err instanceof Error ? err.message : t('auth.login.error'));
     } finally {
       setLoading(false);
     }
@@ -66,14 +63,10 @@ export default function LoginPage() {
     clearMessages();
     try {
       await sendPasswordResetOtp(forgotEmail);
-      setInfo('A 6-digit code was sent to your email.');
+      setInfo(t('auth.otp.codeSent'));
       setView('otp');
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to send code. Please try again.',
-      );
+      setError(err instanceof Error ? err.message : t('auth.forgot.error'));
     } finally {
       setLoading(false);
     }
@@ -87,7 +80,7 @@ export default function LoginPage() {
       await verifyPasswordResetOtp(forgotEmail, otp.trim());
       setView('reset');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Invalid or expired code.');
+      setError(err instanceof Error ? err.message : t('auth.otp.error'));
     } finally {
       setLoading(false);
     }
@@ -96,11 +89,11 @@ export default function LoginPage() {
   const handleResetPassword = async (e: { preventDefault(): void }) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('auth.reset.mismatch'));
       return;
     }
     if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError(t('auth.reset.tooShort'));
       return;
     }
     setLoading(true);
@@ -112,11 +105,9 @@ export default function LoginPage() {
       setOtp('');
       setNewPassword('');
       setConfirmPassword('');
-      setInfo('Password updated successfully. Please sign in.');
+      setInfo(t('auth.reset.success'));
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to reset password.',
-      );
+      setError(err instanceof Error ? err.message : t('auth.reset.error'));
     } finally {
       setLoading(false);
     }
@@ -127,18 +118,25 @@ export default function LoginPage() {
     clearMessages();
     try {
       await sendPasswordResetOtp(forgotEmail);
-      setInfo('A new code was sent to your email.');
+      setInfo(t('auth.otp.codeResent'));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to resend code.');
+      setError(err instanceof Error ? err.message : t('auth.otp.resendError'));
     } finally {
       setLoading(false);
     }
   };
 
-  const goBack = (to: View) => {
+  const goBack = (to: 'login' | 'forgot' | 'otp' | 'reset') => {
     clearMessages();
     setView(to);
   };
+
+  const subtitleKey = {
+    login: 'auth.subtitle.login',
+    forgot: 'auth.subtitle.forgot',
+    otp: 'auth.subtitle.otp',
+    reset: 'auth.subtitle.reset',
+  } as const;
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
@@ -147,15 +145,14 @@ export default function LoginPage() {
           <div className="flex flex-col items-center mb-8">
             <img
               src={logo}
-              alt="Eilaf pos Consultancy"
+              alt={t('auth.appName')}
               className="w-40 h-40 object-cover"
             />
-            <h1 className="text-2xl font-bold text-slate-900">Eilaf pos</h1>
+            <h1 className="text-2xl font-bold text-slate-900">
+              {t('auth.appName')}
+            </h1>
             <p className="mt-1 text-sm text-slate-500">
-              {view === 'login' && 'Sign in to your account'}
-              {view === 'forgot' && 'Reset your password'}
-              {view === 'otp' && 'Enter verification code'}
-              {view === 'reset' && 'Set new password'}
+              {t(subtitleKey[view])}
             </p>
           </div>
 
@@ -164,32 +161,34 @@ export default function LoginPage() {
             <form onSubmit={handleSignIn} className="space-y-5">
               <TextField
                 id="email"
-                label="Email address"
+                label={t('auth.login.email')}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder={t('auth.login.emailPlaceholder')}
               />
 
               <div>
                 <TextField
                   id="password"
-                  label="Password"
+                  label={t('auth.login.password')}
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  placeholder="••••••••"
+                  placeholder={t('auth.login.passwordPlaceholder')}
                   suffix={
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                       aria-label={
-                        showPassword ? 'Hide password' : 'Show password'
+                        showPassword
+                          ? t('auth.login.hidePassword')
+                          : t('auth.login.showPassword')
                       }
                     >
                       {showPassword ? (
@@ -200,7 +199,7 @@ export default function LoginPage() {
                     </button>
                   }
                 />
-                <div className="mt-1.5 text-right">
+                <div className="mt-1.5 text-end">
                   <button
                     type="button"
                     onClick={() => {
@@ -208,9 +207,9 @@ export default function LoginPage() {
                       setForgotEmail(email);
                       setView('forgot');
                     }}
-                    className="text-xs text-blue-600 hover:text-blue-700 transition-colors"
+                    className="text-xs text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
                   >
-                    Forgot password?
+                    {t('auth.login.forgotPassword')}
                   </button>
                 </div>
               </div>
@@ -228,7 +227,7 @@ export default function LoginPage() {
               )}
 
               <Button type="submit" busy={loading} size="lg" className="w-full">
-                Sign in
+                {t('auth.login.submit')}
               </Button>
             </form>
           )}
@@ -236,20 +235,17 @@ export default function LoginPage() {
           {/* ── Forgot — enter email ── */}
           {view === 'forgot' && (
             <form onSubmit={handleSendOtp} className="space-y-5">
-              <p className="text-sm text-slate-500">
-                Enter your account email and we&apos;ll send you a 6-digit
-                verification code.
-              </p>
+              <p className="text-sm text-slate-500">{t('auth.forgot.hint')}</p>
 
               <TextField
                 id="forgot-email"
-                label="Email address"
+                label={t('auth.forgot.email')}
                 type="email"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
                 required
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder={t('auth.forgot.emailPlaceholder')}
               />
 
               {error && (
@@ -259,16 +255,16 @@ export default function LoginPage() {
               )}
 
               <Button type="submit" busy={loading} size="lg" className="w-full">
-                Send code
+                {t('auth.forgot.submit')}
               </Button>
 
               <button
                 type="button"
                 onClick={() => goBack('login')}
-                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mx-auto"
+                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mx-auto cursor-pointer"
               >
                 <ArrowLeftIcon className="h-3.5 w-3.5" />
-                Back to sign in
+                {t('auth.forgot.back')}
               </button>
             </form>
           )}
@@ -284,7 +280,7 @@ export default function LoginPage() {
 
               <TextField
                 id="otp"
-                label="6-digit code"
+                label={t('auth.otp.label')}
                 type="text"
                 inputMode="numeric"
                 value={otp}
@@ -292,7 +288,7 @@ export default function LoginPage() {
                   setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))
                 }
                 required
-                placeholder="123456"
+                placeholder={t('auth.otp.placeholder')}
                 autoComplete="one-time-code"
               />
 
@@ -303,25 +299,25 @@ export default function LoginPage() {
               )}
 
               <Button type="submit" busy={loading} size="lg" className="w-full">
-                Verify code
+                {t('auth.otp.submit')}
               </Button>
 
               <div className="flex items-center justify-between text-sm">
                 <button
                   type="button"
                   onClick={() => goBack('forgot')}
-                  className="flex items-center gap-1.5 text-slate-500 hover:text-slate-700 transition-colors"
+                  className="flex items-center gap-1.5 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer"
                 >
                   <ArrowLeftIcon className="h-3.5 w-3.5" />
-                  Back
+                  {t('auth.otp.back')}
                 </button>
                 <button
                   type="button"
                   disabled={loading}
                   onClick={handleResendOtp}
-                  className="text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50"
+                  className="text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 cursor-pointer"
                 >
-                  Resend code
+                  {t('auth.otp.resend')}
                 </button>
               </div>
             </form>
@@ -332,20 +328,22 @@ export default function LoginPage() {
             <form onSubmit={handleResetPassword} className="space-y-5">
               <TextField
                 id="new-password"
-                label="New password"
+                label={t('auth.reset.newPassword')}
                 type={showNewPassword ? 'text' : 'password'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
                 autoComplete="new-password"
-                placeholder="••••••••"
+                placeholder={t('auth.reset.passwordPlaceholder')}
                 suffix={
                   <button
                     type="button"
                     onClick={() => setShowNewPassword((v) => !v)}
                     className="text-slate-400 hover:text-slate-600 transition-colors"
                     aria-label={
-                      showNewPassword ? 'Hide password' : 'Show password'
+                      showNewPassword
+                        ? t('auth.login.hidePassword')
+                        : t('auth.login.showPassword')
                     }
                   >
                     {showNewPassword ? (
@@ -359,13 +357,13 @@ export default function LoginPage() {
 
               <TextField
                 id="confirm-password"
-                label="Confirm new password"
+                label={t('auth.reset.confirmPassword')}
                 type={showNewPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 autoComplete="new-password"
-                placeholder="••••••••"
+                placeholder={t('auth.reset.passwordPlaceholder')}
               />
 
               {error && (
@@ -375,14 +373,14 @@ export default function LoginPage() {
               )}
 
               <Button type="submit" busy={loading} size="lg" className="w-full">
-                Set new password
+                {t('auth.reset.submit')}
               </Button>
             </form>
           )}
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          Eilaf pos App &copy; {new Date().getFullYear()}
+          {t('auth.footer', { year: new Date().getFullYear() })}
         </p>
       </div>
     </div>

@@ -2,6 +2,7 @@ import 'webpack-dev-server';
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
+import dotenv from 'dotenv';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import chalk from 'chalk';
 import { merge } from 'webpack-merge';
@@ -16,6 +17,8 @@ import checkNodeEnv from '../scripts/check-node-env';
 if (process.env.NODE_ENV === 'production') {
   checkNodeEnv('development');
 }
+
+dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const port = process.env.PORT || 1212;
 const manifest = path.resolve(webpackPaths.dllPath, 'renderer.json');
@@ -142,6 +145,10 @@ const configuration: webpack.Configuration = {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL ?? ''),
+      'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY ?? ''),
     }),
 
     new webpack.LoaderOptionsPlugin({

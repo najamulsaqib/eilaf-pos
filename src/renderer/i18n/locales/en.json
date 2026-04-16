@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to the dashboard!",
+    "alfabay": {
+      "title": "Urdu Alphabet — Alif Bay",
+      "hint": "The 39 letters of the Urdu alphabet"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "label": "Language",
+      "hint": "Choose the display language for the application",
+      "en": "English",
+      "ur": "اردو (Urdu)"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "empty": "No data found",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "sample": "This is a sample text to demonstrate the English translation. You can replace this with any text you want to display in English."
+}

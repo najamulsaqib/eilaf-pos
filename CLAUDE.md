@@ -9,7 +9,7 @@ Core architecture:
 - Business data is local-first with SQLite (`better-sqlite3`)
 - Supabase is used only for authentication flows (login/session/password reset)
 
-**Stack:** Electron · React 19 · TypeScript · SQLite (`better-sqlite3`) · Supabase Auth · React Query · TailwindCSS · Heroicons · Sonner
+**Stack:** Electron · React 19 · TypeScript · SQLite (`better-sqlite3`) · Supabase Auth · React Query · TailwindCSS · Heroicons · Sonner · i18next (Urdu/RTL)
 
 ---
 
@@ -26,6 +26,8 @@ Key rules to internalize before writing any code:
 - **No raw `<button>` for actions** — use `Button`, `IconButton`, or `DropdownMenu`
 - **All components are default exports** — `import Button from '@components/ui/Button'`, never named imports for UI components
 - **Icons only from `@heroicons/react`** — `/20/solid` for compact, `/24/outline` or `/24/solid` for standard
+- **All UI strings must be translated** — use `useTranslation()` from `react-i18next`; never hardcode text in JSX
+- **RTL-safe layout** — use Tailwind logical properties (`ms-*`, `me-*`, `border-e`, `text-start`) instead of physical (`ml-*`, `mr-*`, `border-r`, `text-left`)
 
 ---
 
@@ -41,6 +43,7 @@ Deep documentation for each domain lives in `.github/copilot/skills/`. Read the 
 | [supabase.md](.github/copilot/skills/supabase.md)       | Supabase authentication only (login/session/reset password)          |
 | [electron.md](.github/copilot/skills/electron.md)       | Main/renderer boundaries, IPC communication, native desktop features |
 | [tailwindcss.md](.github/copilot/skills/tailwindcss.md) | Tailwind conventions and responsive styling                          |
+| [i18n.md](.github/copilot/skills/i18n.md)               | Localization, Urdu/RTL support, adding new locales and strings       |
 
 ---
 
@@ -87,7 +90,12 @@ All components are in `src/renderer/components/` with path alias `@components/`.
 
 ```text
 @components/ → src/renderer/components/
-@shared/     → src/shared/
+@contexts/   → src/renderer/contexts/
+@hooks/      → src/renderer/hooks/
+@i18n/       → src/renderer/i18n/
+@pages/      → src/renderer/pages/
+@services/   → src/renderer/services/
+@types/      → src/renderer/types/
 ```
 
 ---

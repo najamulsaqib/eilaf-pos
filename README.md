@@ -10,6 +10,7 @@ eilaf-pos is a desktop point-of-sale application built with Electron and React.
 - Supabase Auth for login/session/password reset only
 - React Query
 - TailwindCSS
+- i18next + react-i18next (Urdu / RTL)
 
 ## Architecture Standards
 
@@ -58,13 +59,45 @@ Supabase must not be used for POS business CRUD.
   - [.github/copilot/skills/react.md](.github/copilot/skills/react.md)
   - [.github/copilot/skills/electron.md](.github/copilot/skills/electron.md)
   - [.github/copilot/skills/tailwindcss.md](.github/copilot/skills/tailwindcss.md)
+  - [.github/copilot/skills/i18n.md](.github/copilot/skills/i18n.md)
+
+## Internationalization (i18n)
+
+eilaf-pos supports multiple languages via **i18next** + **react-i18next**.
+
+| Locale | Language | Script | Direction |
+|--------|----------|--------|-----------|
+| `en`   | English  | Latin  | LTR       |
+| `ur`   | Urdu     | Nastaliq | RTL     |
+
+**Font:** Urdu uses **Jameel Noori Nastaleeq Kasheeda**, bundled at `assets/fonts/`. No internet connection required.
+
+**How it works:**
+- `LocaleProvider` (`src/renderer/contexts/LocaleContext.tsx`) sets `<html dir>` and `<html lang>` on every locale change.
+- The active locale is persisted in `localStorage` under the key `"locale"`.
+- RTL layout uses Tailwind **logical properties** (`ms-*`, `me-*`, `border-s`, `border-e`, `text-start`) — never physical (`ml-*`, `mr-*`, `text-left`).
+
+**Adding a new locale:** see [`.github/copilot/skills/i18n.md`](.github/copilot/skills/i18n.md) for the full step-by-step guide.
+
+**Files:**
+
+```text
+src/renderer/
+  i18n/
+    index.ts              # i18next init, Locale type, LOCALES, RTL_LOCALES
+    locales/
+      en.json             # English strings
+      ur.json             # Urdu strings
+  contexts/
+    LocaleContext.tsx     # LocaleProvider + useLocale hook
+```
 
 ## Scripts
 
 ```bash
-npm start
-npm run build
-npm run test
+pnpm start
+pnpm run build
+pnpm run test
 ```
 
 ## Notes

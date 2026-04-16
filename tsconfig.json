@@ -20,6 +20,8 @@
       "@pages/*": ["renderer/pages/*"],
       "@services/*": ["renderer/services/*"],
       "@types/*": ["renderer/types/*"],
+      "@contexts/*": ["renderer/contexts/*"],
+      "@i18n/*": ["renderer/i18n/*"],
     },
   },
   "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"],

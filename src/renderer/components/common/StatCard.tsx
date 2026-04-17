@@ -19,6 +19,11 @@ const colorClasses = {
     iconBg: 'bg-orange-50',
     icon: 'text-orange-300',
   },
+  yellow: {
+    border: 'border-amber-200',
+    iconBg: 'bg-amber-50',
+    icon: 'text-amber-400',
+  },
   red: {
     border: 'border-red-300',
     iconBg: 'bg-red-50',
@@ -43,7 +48,7 @@ export default function StatCard({
   icon: Icon,
   color,
 }: StatCardProps) {
-  const c = colorClasses[color];
+  const c = colorClasses[color] ?? colorClasses.blue;
   return (
     <div
       className={`flex items-center gap-3 bg-white rounded-xl border border-l-4 ${c.border} px-4 py-3 sm:px-5 sm:py-4 shadow-sm hover:shadow-md transition-shadow`}

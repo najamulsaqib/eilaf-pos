@@ -27,7 +27,7 @@ const variantClasses = {
 
 export default function IconButton({
   icon,
-  onClick,
+  onClick: onClickProp,
   disabled = false,
   title,
   type = 'button',
@@ -35,10 +35,16 @@ export default function IconButton({
   variant = 'default',
   size = 'md',
 }: IconButtonProps) {
+  const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClickProp?.();
+  };
+
   return (
     <button
       type={type}
-      onClick={onClick}
+      onClick={handleOnClick}
       disabled={disabled}
       title={title}
       className={`

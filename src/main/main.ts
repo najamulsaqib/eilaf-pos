@@ -14,6 +14,12 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { initSchema } from './db/schema';
+import { registerProductHandlers } from './ipc/products';
+import { registerBillHandlers } from './ipc/bills';
+import { registerPrintHandlers } from './ipc/print';
+import { registerSettingsHandlers } from './ipc/settings';
+import { registerReportsHandlers } from './ipc/reports';
 
 class AppUpdater {
   constructor() {
@@ -30,6 +36,12 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
+
+initSchema();
+registerProductHandlers();
+registerBillHandlers();
+registerSettingsHandlers();
+registerReportsHandlers();
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -100,6 +112,8 @@ const createWindow = async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+
+  registerPrintHandlers(mainWindow);
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {

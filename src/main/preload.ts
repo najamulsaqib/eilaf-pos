@@ -13,7 +13,6 @@ const electronHandler = {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
         func(...args);
       ipcRenderer.on(channel, subscription);
-
       return () => {
         ipcRenderer.removeListener(channel, subscription);
       };
@@ -31,6 +30,50 @@ const electronHandler = {
   },
   net: {
     isOnline: (): Promise<boolean> => ipcRenderer.invoke('net:isOnline'),
+  },
+  db: {
+    products: {
+      list: (): Promise<unknown> => ipcRenderer.invoke('db:products:list'),
+      create: (data: unknown): Promise<unknown> =>
+        ipcRenderer.invoke('db:products:create', data),
+      update: (id: number, data: unknown): Promise<unknown> =>
+        ipcRenderer.invoke('db:products:update', id, data),
+      delete: (id: number): Promise<void> =>
+        ipcRenderer.invoke('db:products:delete', id),
+    },
+    bills: {
+      list: (opts?: unknown): Promise<unknown> =>
+        ipcRenderer.invoke('db:bills:list', opts),
+      get: (id: number): Promise<unknown> =>
+        ipcRenderer.invoke('db:bills:get', id),
+      create: (data: unknown): Promise<unknown> =>
+        ipcRenderer.invoke('db:bills:create', data),
+      todayStats: (): Promise<unknown> =>
+        ipcRenderer.invoke('db:bills:today-stats'),
+      delete: (id: number): Promise<unknown> =>
+        ipcRenderer.invoke('db:bills:delete', id),
+    },
+  },
+  print: {
+    bill: (billId: number): Promise<unknown> =>
+      ipcRenderer.invoke('print:bill', billId),
+    productBarcodes: (items: unknown[]): Promise<unknown> =>
+      ipcRenderer.invoke('print:product-barcodes', items),
+    report: (input?: unknown): Promise<unknown> =>
+      ipcRenderer.invoke('print:report', input),
+  },
+  reports: {
+    summary: (input?: unknown): Promise<unknown> =>
+      ipcRenderer.invoke('reports:summary', input),
+  },
+  products: {
+    barcodeBulk: (): Promise<unknown> =>
+      ipcRenderer.invoke('products:barcode-bulk'),
+  },
+  settings: {
+    getAll: (): Promise<unknown> => ipcRenderer.invoke('settings:get-all'),
+    set: (updates: Record<string, string>): Promise<unknown> =>
+      ipcRenderer.invoke('settings:set', updates),
   },
 };
 

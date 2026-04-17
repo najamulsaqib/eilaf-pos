@@ -1,24 +1,69 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "bills": "Bills",
+    "products": "Products",
+    "reports": "Reports",
     "settings": "Settings",
     "signOut": "Sign Out"
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to the dashboard!",
-    "alfabay": {
-      "title": "Urdu Alphabet — Alif Bay",
-      "hint": "The 39 letters of the Urdu alphabet"
-    }
+    "welcome": "Welcome to the dashboard!"
   },
   "settings": {
     "title": "Settings",
+    "saved": "Settings saved",
+    "business": {
+      "title": "Business Profile",
+      "desc": "This information appears on your printed bills",
+      "navDesc": "Name, address, contact",
+      "name": "Business Name",
+      "namePlaceholder": "e.g. Eilaf Store",
+      "address": "Address",
+      "addressPlaceholder": "e.g. Shop #5, Main Market, Lahore",
+      "phone": "Phone Number",
+      "phonePlaceholder": "e.g. 0300-1234567",
+      "email": "Email",
+      "emailPlaceholder": "store@example.com",
+      "tagline": "Tagline",
+      "taglinePlaceholder": "e.g. Quality you can trust",
+      "save": "Save Business Details"
+    },
+    "receipt": {
+      "title": "Receipt",
+      "desc": "Customize how your printed receipts look",
+      "navDesc": "Logo, footer, layout",
+      "showBusiness": "Show business info on receipts",
+      "showBusinessHint": "Print your business name, address and contact on every receipt",
+      "footer": "Footer message",
+      "footerPlaceholder": "e.g. Thank you for shopping with us!",
+      "footerHint": "Appears at the bottom of every printed receipt",
+      "save": "Save Receipt Settings"
+    },
+    "app": {
+      "title": "App Preferences",
+      "desc": "Configure the app to suit your workflow",
+      "navDesc": "Language, sidebar"
+    },
+    "sidebar": {
+      "label": "Sidebar style",
+      "hint": "Choose how the navigation sidebar looks. Changes apply instantly.",
+      "full": "Full",
+      "slim": "Compact"
+    },
     "language": {
       "label": "Language",
       "hint": "Choose the display language for the application",
       "en": "English",
       "ur": "اردو (Urdu)"
+    },
+    "account": {
+      "title": "Account",
+      "desc": "Manage your account and session",
+      "navDesc": "Sign out, session",
+      "signOut": "Sign Out",
+      "signOutDesc": "You will need to sign in again to use the app"
     }
   },
   "common": {
@@ -33,7 +78,119 @@
     "search": "Search",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "close": "Close"
+  },
+  "pos": {
+    "search": "Search products...",
+    "allCategories": "All",
+    "customItem": "Custom Item",
+    "customItemName": "Item name",
+    "customItemNamePlaceholder": "e.g. Repair service",
+    "customItemPrice": "Price (Rs)",
+    "addToBill": "Add to Bill",
+    "currentBill": "Current Bill",
+    "customer": "Customer name (optional)",
+    "emptyCart": "Cart is empty",
+    "emptyCartDesc": "Click a product to add it to the bill",
+    "noProducts": "No products found",
+    "discount": "Discount",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "clearCart": "Clear",
+    "createBill": "Create Bill",
+    "billCreated": "Bill created successfully!",
+    "billError": "Failed to create bill. Please try again.",
+    "todayBills": "Today's Bills",
+    "todayRevenue": "Today's Revenue",
+    "choosePricingOption": "Choose pricing option",
+    "quantity": "Quantity",
+    "invalidQty": "Please enter a valid quantity for the selected unit."
+  },
+  "bills": {
+    "number": "Bill #",
+    "customer": "Customer",
+    "items": "Items",
+    "total": "Total",
+    "date": "Date",
+    "noCustomer": "Walk-in",
+    "empty": "No bills yet",
+    "emptyDesc": "Bills you create will appear here",
+    "print": "Print Bill",
+    "detail": {
+      "title": "Bill Details",
+      "name": "Item",
+      "qty": "Qty",
+      "price": "Price",
+      "total": "Total",
+      "subtotal": "Subtotal"
+    }
+  },
+  "products": {
+    "title": "Products",
+    "total": "products",
+    "add": "Add Product",
+    "edit": "Edit Product",
+    "name": "Name (English)",
+    "barcode": "Barcode",
+    "barcodePlaceholder": "e.g. 8963001234567",
+    "noBarcode": "No barcode",
+    "generateBarcode": "Generate barcode",
+    "barcodeLocked": "Barcode is locked. Once assigned, it cannot be changed to protect printed labels.",
+    "printBarcodes": "Print Barcodes",
+    "selectAllBarcoded": "Select All Barcoded",
+    "clearSelection": "Clear Selection",
+    "barcodePrinted": "Barcode labels sent to printer.",
+    "price": "Price",
+    "pricingOptions": "Pricing options",
+    "addPricingOption": "Add option",
+    "removePricingOption": "Remove option",
+    "defaultPricingOption": "Default option",
+    "allowDecimalQty": "Allow decimal quantity",
+    "unit": "Unit",
+    "unitPlaceholder": "e.g. piece, meter, pack",
+    "category": "Category",
+    "categoryPlaceholder": "e.g. Grocery, Dairy",
+    "empty": "No products yet",
+    "emptyDesc": "Add products to start selling",
+    "deleteTitle": "Delete Product",
+    "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
+    "created": "Product added successfully!",
+    "updated": "Product updated successfully!",
+    "deleted": "Product deleted.",
+    "selected": "selected"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Generate and print sales reports",
+    "from": "From",
+    "to": "To",
+    "generate": "Generate",
+    "print": "Print Report",
+    "printed": "Report sent to printer.",
+    "empty": "No report generated",
+    "emptyDesc": "Choose a date range and generate report",
+    "totalBills": "Total Bills",
+    "totalDiscount": "Total Discount",
+    "totalRevenue": "Total Revenue",
+    "salesByDay": "Sales by Day",
+    "topItems": "Top Items",
+    "day": "Day",
+    "bills": "Bills",
+    "item": "Item",
+    "qty": "Qty",
+    "amount": "Amount",
+    "tabCharts": "Charts",
+    "tabReport": "Report",
+    "revenueByDay": "Revenue by Day",
+    "billsByDay": "Bills by Day",
+    "peakHours": "Peak Hours",
+    "peakHoursDesc": "Revenue by hour of day — see when customers shop most",
+    "shortcutToday": "Today",
+    "shortcutYesterday": "Yesterday",
+    "shortcut7d": "Last 7 days",
+    "shortcut30d": "Last 30 days",
+    "shortcutThisMonth": "This month"
   },
   "auth": {
     "appName": "Eilaf POS",
@@ -84,6 +241,5 @@
       "error": "Failed to reset password.",
       "success": "Password updated successfully. Please sign in."
     }
-  },
-  "sample": "This is a sample text to demonstrate the English translation. You can replace this with any text you want to display in English."
+  }
 }

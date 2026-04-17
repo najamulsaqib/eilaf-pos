@@ -18,13 +18,13 @@ export default function CheckboxField({
   return (
     <label
       htmlFor={id}
-      className={`flex w-full cursor-pointer items-start ${className}`}
+      className={`flex w-full cursor-pointer items-center ${className}`}
     >
-      <div className="flex h-5 items-center">
+      <div className="flex h-5 items-center justify-center">
         <input
           id={id}
           type="checkbox"
-          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 ml-2"
           {...props}
         />
       </div>

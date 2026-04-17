@@ -1,25 +1,21 @@
 import { ReactNode } from 'react';
-import Sidebar from './Sidebar';
 import Header from './Header';
+import Sidebar from './Sidebar';
 
 interface AppLayoutProps {
   children: ReactNode;
-  title?: string;
-  breadcrumbs?: Array<{ label: string; href?: string }>;
   fullscreen?: boolean;
 }
 
 export default function AppLayout({
   children,
-  title,
-  breadcrumbs,
   fullscreen = false,
 }: AppLayoutProps) {
   return (
     <div className="flex h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 border border-slate-200">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title={title} breadcrumbs={breadcrumbs} />
+        <Header />
         <main
           className={
             fullscreen ? 'flex-1 overflow-hidden' : 'flex-1 overflow-auto'

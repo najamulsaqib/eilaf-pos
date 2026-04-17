@@ -1,5 +1,9 @@
-import Dashboard from '@pages/dashboard';
 import { Route, HashRouter as Router, Routes } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import Dashboard from '@pages/dashboard';
+import BillsPage from '@pages/bills';
+import ProductsPage from '@pages/products';
+import ReportsPage from '@pages/reports';
 import Settings from '@pages/settings';
 import LoginPage from '@pages/auth/Login';
 import { LocaleProvider } from '@contexts/LocaleContext';
@@ -27,6 +31,9 @@ function AppRoutes() {
     <Router>
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/bills" element={<BillsPage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
@@ -38,6 +45,7 @@ export default function App() {
     <LocaleProvider>
       <AuthProvider>
         <AppRoutes />
+        <Toaster position="top-right" richColors closeButton />
       </AuthProvider>
     </LocaleProvider>
   );

@@ -49,7 +49,7 @@ export default function ServiceCard({
   color = 'blue',
 }: ServiceCardProps) {
   const navigate = useNavigate();
-  const colors = colorClasses[color];
+  const colors = colorClasses[color] ?? colorClasses.blue;
 
   return (
     <button

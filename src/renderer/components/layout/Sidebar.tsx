@@ -100,7 +100,7 @@ function SlimSidebar() {
           onClick={signOut}
           className="group relative flex items-center justify-center w-11 h-11 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
         >
-          <PowerIcon className="w-5 h-5 text-ink-ghost group-hover:text-red-500 transition-colors" />
+          <PowerIcon className="w-5 h-5 text-red-500 transition-colors" />
           <span className="pointer-events-none absolute start-full ms-3 z-50 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
             {t('nav.signOut')}
           </span>

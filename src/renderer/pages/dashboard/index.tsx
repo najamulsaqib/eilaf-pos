@@ -324,7 +324,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setCustomOpen(true)}
-                  className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-edge rounded-xl p-2.5 text-ink-ghost hover:border-primary-300 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/30 transition-all cursor-pointer min-h-28"
+                  className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-edge rounded-xl p-2.5 text-ink-ghost hover:border-primary-500 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/30 transition-all cursor-pointer min-h-28"
                 >
                   <PlusCircleIcon className="w-7 h-7" />
                   <p className="text-xs font-semibold">{t('pos.customItem')}</p>

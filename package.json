@@ -39,6 +39,8 @@
     "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true NODE_OPTIONS=\"-r ts-node/register --no-warnings\" webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
+    "generate-icons": "electron-icon-builder --input=./assets/logo.png --output=./assets --flatten",
+    "generate-icons:dark": "electron-icon-builder --input=./assets/logo-dark.png --output=./assets/icons-dark --flatten",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && npm run build:dll",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --fix",
@@ -146,6 +148,7 @@
     "electron": "^35.0.2",
     "electron-builder": "^25.1.8",
     "electron-devtools-installer": "^4.0.0",
+    "electron-icon-builder": "^2.0.1",
     "electronmon": "^2.0.3",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -200,6 +203,7 @@
     ],
     "mac": {
       "notarize": false,
+      "icon": "assets/icons/icon.icns",
       "target": {
         "target": "default",
         "arch": [
@@ -228,11 +232,13 @@
       ]
     },
     "win": {
+      "icon": "assets/icons/icon.ico",
       "target": [
         "nsis"
       ]
     },
     "linux": {
+      "icon": "assets/icons/512x512.png",
       "target": [
         "AppImage"
       ],

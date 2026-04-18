@@ -51,7 +51,7 @@ function NavItem({
       type="button"
       onClick={onClick}
       className={`
-        w-full text-start px-3 py-2.5 rounded-xl flex items-center gap-3 transition-all cursor-pointer
+        w-full text-start px-3 py-2.5 rounded-xl flex items-center gap-3 transition-all cursor-pointer mb-1
         ${
           active
             ? `${item.activeBg} ${item.activeBorder} border`
@@ -193,10 +193,18 @@ export default function Settings() {
 
   const localeOptions = LOCALES.map((l) => ({ value: l.code, label: l.label }));
 
-  const themeOptions: { id: TThemeMode; icon: ComponentType<{ className?: string }>; labelKey: string }[] = [
+  const themeOptions: {
+    id: TThemeMode;
+    icon: ComponentType<{ className?: string }>;
+    labelKey: any;
+  }[] = [
     { id: 'light', icon: SunIcon, labelKey: 'settings.theme.light' },
     { id: 'dark', icon: MoonIcon, labelKey: 'settings.theme.dark' },
-    { id: 'system', icon: ComputerDesktopIcon, labelKey: 'settings.theme.system' },
+    {
+      id: 'system',
+      icon: ComputerDesktopIcon,
+      labelKey: 'settings.theme.system',
+    },
   ];
 
   const navItems: NavItemConfig[] = [

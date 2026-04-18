@@ -35,7 +35,7 @@ export default function ProductTile({
     <button
       type="button"
       onClick={() => onAdd(product)}
-      className="group flex cursor-pointer flex-col rounded-xl border border-edge bg-surface p-2.5 text-start transition-all hover:border-primary-200"
+      className="group flex cursor-pointer flex-col rounded-xl border border-edge bg-surface p-2.5 text-start transition-all hover:border-primary-500"
     >
       <p className="line-clamp-2 flex-1 text-sm font-bold leading-snug text-ink">
         {product.name}

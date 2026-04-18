@@ -58,6 +58,18 @@ export const reportsApi = {
     window.electron.reports.summary(input) as Promise<IReportSummary>,
 };
 
+export const backupApi = {
+  export: () =>
+    window.electron.backup.export() as Promise<{ ok: boolean }>,
+  selectFile: () =>
+    window.electron.backup.selectFile() as Promise<{ filePath: string | null }>,
+  import: (filePath: string) =>
+    window.electron.backup.import(filePath) as Promise<{
+      ok: boolean;
+      error?: string;
+    }>,
+};
+
 export const updaterApi = {
   getVersion: () => window.electron.updater.getVersion() as Promise<string>,
   getChannel: () =>

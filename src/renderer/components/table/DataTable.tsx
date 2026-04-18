@@ -280,7 +280,9 @@ export default function DataTable<T>({
         </tbody>
         {footer && (
           <tfoot>
-            <td colSpan={columns.length}>{footer}</td>
+            <tr>
+              <td colSpan={columns.length}>{footer}</td>
+            </tr>
           </tfoot>
         )}
       </table>

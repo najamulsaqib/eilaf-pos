@@ -77,6 +77,12 @@ const electronHandler = {
     set: (updates: Record<string, string>): Promise<unknown> =>
       ipcRenderer.invoke('settings:set', updates),
   },
+  backup: {
+    export: (): Promise<unknown> => ipcRenderer.invoke('backup:export'),
+    selectFile: (): Promise<unknown> => ipcRenderer.invoke('backup:selectFile'),
+    import: (filePath: string): Promise<unknown> =>
+      ipcRenderer.invoke('backup:import', filePath),
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

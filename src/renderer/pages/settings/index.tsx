@@ -13,6 +13,9 @@ import {
   ArrowPathIcon,
   BeakerIcon,
   CheckCircleIcon,
+  CircleStackIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
 } from '@heroicons/react/24/outline';
 import AppLayout from '@components/layout/AppLayout';
 import Button from '@components/ui/Button';
@@ -23,9 +26,10 @@ import { useAuth } from '@contexts/AuthContext';
 import { useTheme, type TThemeMode } from '@contexts/ThemeContext';
 import { useSettings } from '@hooks/useSettings';
 import { LOCALES, Locale } from '@i18n/index';
-import { updaterApi } from '@services/db';
+import { updaterApi, backupApi } from '@services/db';
+import ConfirmDialog from '@components/ui/ConfirmDialog';
 
-type Tab = 'business' | 'receipt' | 'app' | 'account' | 'updates';
+type Tab = 'business' | 'receipt' | 'app' | 'account' | 'backup' | 'updates';
 
 // ── Sidebar nav item ──────────────────────────────────────────────────────────
 
@@ -144,6 +148,50 @@ export default function Settings() {
     'latest',
   );
   const [checkingUpdates, setCheckingUpdates] = useState(false);
+
+  const [exportingBackup, setExportingBackup] = useState(false);
+  const [restorePending, setRestorePending] = useState<string | null>(null);
+  const [restoringBackup, setRestoringBackup] = useState(false);
+
+  const handleExportBackup = async () => {
+    setExportingBackup(true);
+    try {
+      const res = await backupApi.export();
+      if (res.ok) toast.success(t('settings.backup.exportSuccess'));
+    } catch {
+      toast.error(t('settings.backup.exportFailed'));
+    } finally {
+      setExportingBackup(false);
+    }
+  };
+
+  const handleSelectRestore = async () => {
+    const res = await backupApi.selectFile();
+    if (res.filePath) setRestorePending(res.filePath);
+  };
+
+  const handleConfirmRestore = async () => {
+    if (!restorePending) return;
+    setRestoringBackup(true);
+    try {
+      const res = await backupApi.import(restorePending);
+      if (!res.ok) {
+        toast.error(
+          res.error === 'invalid'
+            ? t('settings.backup.restoreInvalid')
+            : t('settings.backup.restoreFailed'),
+        );
+        setRestoringBackup(false);
+        setRestorePending(null);
+      } else {
+        toast.success(t('settings.backup.restoreSuccess'));
+      }
+    } catch {
+      toast.error(t('settings.backup.restoreFailed'));
+      setRestoringBackup(false);
+      setRestorePending(null);
+    }
+  };
 
   useEffect(() => {
     updaterApi
@@ -298,6 +346,16 @@ export default function Settings() {
       activeBg: 'bg-rose-50 dark:bg-rose-900/20',
       activeBorder: 'border-rose-200 dark:border-rose-800/60',
       iconBg: 'bg-rose-50 dark:bg-rose-900/20',
+    },
+    {
+      id: 'backup',
+      icon: CircleStackIcon,
+      label: t('settings.backup.title'),
+      desc: t('settings.backup.navDesc'),
+      activeText: 'text-teal-600 dark:text-teal-400',
+      activeBg: 'bg-teal-50 dark:bg-teal-900/20',
+      activeBorder: 'border-teal-200 dark:border-teal-800/60',
+      iconBg: 'bg-teal-50 dark:bg-teal-900/20',
     },
     {
       id: 'updates',
@@ -585,6 +643,61 @@ export default function Settings() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ── Backup & Restore ── */}
+          {activeTab === 'backup' && (
+            <>
+              <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden mb-4">
+                <PanelHeader
+                  icon={CircleStackIcon}
+                  iconBg="bg-teal-50 dark:bg-teal-900/30"
+                  iconText="text-teal-600 dark:text-teal-400"
+                  title={t('settings.backup.exportTitle')}
+                  desc={t('settings.backup.exportDesc')}
+                />
+                <div className="px-8 py-4 bg-surface-muted/70 border-t border-edge-muted flex justify-end">
+                  <Button
+                    icon={ArrowDownTrayIcon}
+                    busy={exportingBackup}
+                    onClick={handleExportBackup}
+                  >
+                    {t('settings.backup.export')}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
+                <PanelHeader
+                  icon={ArrowUpTrayIcon}
+                  iconBg="bg-rose-50 dark:bg-rose-900/30"
+                  iconText="text-rose-600 dark:text-rose-400"
+                  title={t('settings.backup.restoreTitle')}
+                  desc={t('settings.backup.restoreDesc')}
+                />
+                <div className="px-8 py-4 bg-surface-muted/70 border-t border-edge-muted flex justify-end">
+                  <Button
+                    variant="danger"
+                    icon={ArrowUpTrayIcon}
+                    onClick={handleSelectRestore}
+                  >
+                    {t('settings.backup.restore')}
+                  </Button>
+                </div>
+              </div>
+
+              <ConfirmDialog
+                isOpen={restorePending !== null}
+                title={t('settings.backup.restoreConfirmTitle')}
+                message={t('settings.backup.restoreConfirmMessage')}
+                confirmLabel={t('settings.backup.restoreConfirm')}
+                cancelLabel={t('common.cancel')}
+                confirmVariant="danger"
+                busy={restoringBackup}
+                onConfirm={handleConfirmRestore}
+                onCancel={() => setRestorePending(null)}
+              />
+            </>
           )}
 
           {/* ── Updates ── */}

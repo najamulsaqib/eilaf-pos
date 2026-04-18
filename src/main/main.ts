@@ -21,6 +21,7 @@ import { registerPrintHandlers } from './ipc/print';
 import { registerSettingsHandlers } from './ipc/settings';
 import { registerReportsHandlers } from './ipc/reports';
 import { registerUpdaterHandlers, applyStoredChannel } from './ipc/updater';
+import { registerBackupHandlers } from './ipc/backup';
 
 class AppUpdater {
   constructor() {
@@ -45,6 +46,7 @@ registerSettingsHandlers();
 registerReportsHandlers();
 registerUpdaterHandlers();
 applyStoredChannel();
+registerBackupHandlers();
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');

@@ -72,6 +72,25 @@
       "signOut": "Sign Out",
       "signOutDesc": "You will need to sign in again to use the app"
     },
+    "backup": {
+      "title": "Backup & Restore",
+      "desc": "Export your data or restore from a previous backup",
+      "navDesc": "Export, restore",
+      "exportTitle": "Export Backup",
+      "exportDesc": "Save a copy of all your products, bills, and settings to a file.",
+      "export": "Export Backup",
+      "exportSuccess": "Backup saved successfully.",
+      "exportFailed": "Failed to save backup.",
+      "restoreTitle": "Restore from Backup",
+      "restoreDesc": "Replace all current data with data from a backup file. The app will restart automatically.",
+      "restore": "Restore Backup",
+      "restoreConfirmTitle": "Restore Backup?",
+      "restoreConfirmMessage": "This will replace ALL current data (products, bills, settings) with the selected backup. This cannot be undone. The app will restart.",
+      "restoreConfirm": "Yes, Restore",
+      "restoreSuccess": "Restore complete. Restarting...",
+      "restoreFailed": "Restore failed. The file may be invalid or corrupted.",
+      "restoreInvalid": "Invalid backup file. Please select a valid Eilaf POS backup."
+    },
     "updates": {
       "title": "Updates",
       "desc": "Manage the app update channel and check for new versions",

@@ -311,15 +311,6 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {filtered.map((p) => (
-                  <ProductTile
-                    key={p.id}
-                    product={p}
-                    onAdd={addProduct}
-                    formatCurrency={fmt}
-                  />
-                ))}
-
                 {/* Custom item tile */}
                 <button
                   type="button"
@@ -329,6 +320,15 @@ export default function Dashboard() {
                   <PlusCircleIcon className="w-7 h-7" />
                   <p className="text-xs font-semibold">{t('pos.customItem')}</p>
                 </button>
+
+                {filtered.map((p) => (
+                  <ProductTile
+                    key={p.id}
+                    product={p}
+                    onAdd={addProduct}
+                    formatCurrency={fmt}
+                  />
+                ))}
 
                 {filtered.length === 0 && !search && (
                   <div className="col-span-full">

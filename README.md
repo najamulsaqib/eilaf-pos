@@ -65,10 +65,10 @@ Supabase must not be used for POS business CRUD.
 
 eilaf-pos uses **CSS custom property–based semantic tokens** (Tailwind 4). Theme switching toggles a class on `<html>` — no `dark:` variants appear in component files.
 
-| File | Role |
-|------|------|
-| `src/renderer/styles.css` | Defines `--color-*` variables in `@theme`; overrides them per-theme in `@layer base` |
-| `src/renderer/contexts/ThemeContext.tsx` | Manages theme state in `localStorage`, applies `.dark` to `<html>` |
+| File                                     | Role                                                                                 |
+| ---------------------------------------- | ------------------------------------------------------------------------------------ |
+| `src/renderer/styles.css`                | Defines `--color-*` variables in `@theme`; overrides them per-theme in `@layer base` |
+| `src/renderer/contexts/ThemeContext.tsx` | Manages theme state in `localStorage`, applies `.dark` to `<html>`                   |
 
 **To add a new theme** (e.g. `.sepia`): add one CSS block in `styles.css` overriding the `--color-*` variables, then add the mode to `TThemeMode` and the settings picker. No component changes needed.
 
@@ -80,14 +80,15 @@ Full token reference: [`.github/copilot/skills/tailwindcss.md`](.github/copilot/
 
 eilaf-pos supports multiple languages via **i18next** + **react-i18next**.
 
-| Locale | Language | Script | Direction |
-|--------|----------|--------|-----------|
-| `en`   | English  | Latin  | LTR       |
-| `ur`   | Urdu     | Nastaliq | RTL     |
+| Locale | Language | Script   | Direction |
+| ------ | -------- | -------- | --------- |
+| `en`   | English  | Latin    | LTR       |
+| `ur`   | Urdu     | Nastaliq | RTL       |
 
 **Font:** Urdu uses **Jameel Noori Nastaleeq Kasheeda**, bundled at `assets/fonts/`. No internet connection required.
 
 **How it works:**
+
 - `LocaleProvider` (`src/renderer/contexts/LocaleContext.tsx`) sets `<html dir>` and `<html lang>` on every locale change.
 - The active locale is persisted in `localStorage` under the key `"locale"`.
 - RTL layout uses Tailwind **logical properties** (`ms-*`, `me-*`, `border-s`, `border-e`, `text-start`) — never physical (`ml-*`, `mr-*`, `text-left`).
@@ -113,6 +114,35 @@ src/renderer/
 pnpm start
 pnpm run build
 pnpm run test
+```
+
+## Seed dummy data
+
+Inserts 5 000 products and 1 000 bills directly into the SQLite database.
+
+> **Prerequisite:** launch the app at least once so it creates the database file.
+
+```bash
+python3 scripts/seed.py
+```
+
+The script resolves the DB path in this order:
+
+1. `SQL_DB_PATH` environment variable (set this if the default doesn't match your machine)
+2. Falls back to `~/Library/Application Support/eilaf-pos/eilaf-pos.db`
+
+```bash
+SQL_DB_PATH="/path/to/eilaf-pos.db" python3 scripts/seed.py
+```
+
+Re-run the command to add another batch of data.
+
+To wipe all seeded data:
+
+```bash
+python3 scripts/truncate.py
+# prompts for confirmation before deleting
+SQL_DB_PATH="/path/to/eilaf-pos.db" python3 scripts/truncate.py
 ```
 
 ## Notes

@@ -274,6 +274,7 @@ export default function ReportsPage() {
   return (
     <AppLayout>
       <div className="space-y-5">
+        <h1 className="text-xl font-bold text-ink">{t('reports.title')}</h1>
         {/* ── Toolbar ── */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 bg-surface border border-edge rounded-xl px-3 py-2 shadow-sm">

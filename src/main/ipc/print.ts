@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow, dialog, shell } from 'electron';
 import fs from 'fs';
 import bwipjs from 'bwip-js';
 import { getDb } from '../db/database';
+import { getLogoDataUri } from './logo';
 
 function getSettings(): Record<string, string> {
   const rows = getDb()
@@ -58,7 +59,11 @@ function formatCurrency(n: number): string {
   return `Rs ${n.toLocaleString('en-PK')}`;
 }
 
-function billHtml(bill: IBill, settings: Record<string, string>): string {
+function billHtml(
+  bill: IBill,
+  settings: Record<string, string>,
+  logoDataUri: string | null,
+): string {
   const showBusiness = settings.receipt_show_business !== '0';
   const footer = settings.receipt_footer ?? '';
   const businessName = settings.business_name ?? '';
@@ -79,6 +84,8 @@ function billHtml(bill: IBill, settings: Record<string, string>): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
   <style>
     body { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; padding: 12px; max-width: 300px; }
+    .logo { text-align: center; margin-bottom: 8px; }
+    .logo img { max-height: 64px; max-width: 200px; object-fit: contain; }
     h1 { font-size: 15px; text-align: center; margin: 0 0 2px; }
     .sub { font-size: 11px; text-align: center; color: #555; margin: 0 0 8px; }
     hr { border: none; border-top: 1px dashed #999; margin: 6px 0; }
@@ -93,6 +100,7 @@ function billHtml(bill: IBill, settings: Record<string, string>): string {
     .footer { text-align: center; font-size: 11px; color: #555; margin-top: 8px; }
   </style>
   </head><body>
+  ${logoDataUri ? `<div class="logo"><img src="${logoDataUri}" /></div>` : ''}
   ${showBusiness && businessName ? `<h1>${businessName}</h1>` : '<h1>Receipt</h1>'}
   ${showBusiness && address ? `<p class="sub">${address}</p>` : ''}
   ${showBusiness && phone ? `<p class="sub">${phone}</p>` : ''}
@@ -191,7 +199,9 @@ async function barcodeHtml(items: IBarcodePrintItemInput[]): Promise<string> {
             ${imgTag}
             ${item.price != null ? `<div class="price">Rs ${item.price}${item.unit ? ` / ${item.unit}` : ''}</div>` : ''}
           </div>`;
-        return Array(item.copies ?? 1).fill(label).join('');
+        return Array(item.copies ?? 1)
+          .fill(label)
+          .join('');
       }),
     );
     allLabels.push(...chunkLabels);
@@ -222,7 +232,7 @@ export function registerPrintHandlers(mainWindow: BrowserWindow): void {
       .prepare('SELECT * FROM bill_items WHERE bill_id = ? ORDER BY id')
       .all(billId) as IBillItem[];
     const settings = getSettings();
-    await printHtml(billHtml({ ...bill, items }, settings));
+    await printHtml(billHtml({ ...bill, items }, settings, getLogoDataUri()));
     return { ok: true };
   });
 

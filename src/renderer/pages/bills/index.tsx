@@ -115,6 +115,7 @@ export default function BillsPage() {
 
   return (
     <AppLayout>
+      <h1 className="text-xl font-bold text-ink mb-4">{t('nav.bills')}</h1>
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <StatCard

@@ -92,3 +92,10 @@ export const settingsApi = {
       ok: boolean;
     }>,
 };
+
+export const logoApi = {
+  get: () => window.electron.logo.get(),
+  set: (dataUri: string) =>
+    window.electron.logo.set(dataUri) as Promise<{ ok: boolean }>,
+  delete: () => window.electron.logo.delete() as Promise<{ ok: boolean }>,
+};

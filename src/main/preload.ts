@@ -83,6 +83,12 @@ const electronHandler = {
     import: (filePath: string): Promise<unknown> =>
       ipcRenderer.invoke('backup:import', filePath),
   },
+  logo: {
+    set: (dataUri: string): Promise<unknown> =>
+      ipcRenderer.invoke('logo:set', dataUri),
+    get: (): Promise<string | null> => ipcRenderer.invoke('logo:get'),
+    delete: (): Promise<unknown> => ipcRenderer.invoke('logo:delete'),
+  },
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

@@ -39,7 +39,15 @@
       "footer": "Footer message",
       "footerPlaceholder": "e.g. Thank you for shopping with us!",
       "footerHint": "Appears at the bottom of every printed receipt",
-      "save": "Save Receipt Settings"
+      "save": "Save Receipt Settings",
+      "logo": "Receipt Logo",
+      "logoHint": "Appears at the top of every printed receipt",
+      "logoUploadTitle": "Drop your logo here, or",
+      "logoUploadLabel": "PNG or JPG recommended",
+      "logoRemove": "Remove",
+      "logoSaved": "Logo saved",
+      "logoDeleted": "Logo removed",
+      "logoError": "Failed to save logo"
     },
     "app": {
       "title": "App Preferences",
@@ -106,6 +114,19 @@
       "updateAvailable": "Update available: v{{version}}",
       "checkFailed": "Could not check for updates.",
       "channelSaved": "Update channel saved."
+    },
+    "preferences": {
+      "title": "Preferences",
+      "desc": "Configure language, appearance, and account",
+      "navDesc": "Theme, language, account",
+      "displaySection": "Display",
+      "layoutSection": "Layout",
+      "accountSection": "Account"
+    },
+    "system": {
+      "title": "System",
+      "desc": "Manage backups and keep the app up to date",
+      "navDesc": "Backup & updates"
     }
   },
   "common": {

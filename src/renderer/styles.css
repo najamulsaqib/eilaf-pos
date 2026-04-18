@@ -108,6 +108,18 @@
     --color-stat-neon-icon: #c084fc; /* purple-400 */
   }
 
+  /* ── Animations ────────────────────────────────────────────────────────── */
+  @keyframes slideUpFade {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* ── Scrollbar ─────────────────────────────────────────────────────────── */
   * {
     scrollbar-width: thin;

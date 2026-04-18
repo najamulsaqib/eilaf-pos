@@ -298,24 +298,27 @@ export default function Dashboard() {
             ) : (
               <div
                 key={loadKey}
-                className={`animate-grid-in grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 transition-opacity duration-150 ${productsLoading ? 'opacity-40' : 'opacity-100'}`}
+                className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               >
                 {/* Custom item tile */}
                 <button
                   type="button"
                   onClick={() => setCustomOpen(true)}
-                  className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-edge rounded-xl p-2.5 text-ink-ghost hover:border-primary-500 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/30 transition-all cursor-pointer min-h-28"
+                  className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-edge rounded-xl p-2.5 text-ink-ghost hover:border-primary-500 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/30 transition-all cursor-pointer min-h-28 animate-in fade-in duration-300"
                 >
                   <PlusCircleIcon className="w-7 h-7" />
                   <p className="text-xs font-semibold">{t('pos.customItem')}</p>
                 </button>
 
-                {products.map((p) => (
+                {products.map((p, idx) => (
                   <ProductTile
                     key={p.id}
                     product={p}
                     onAdd={addProduct}
                     formatCurrency={fmt}
+                    style={{
+                      animation: `slideUpFade 500ms cubic-bezier(0.16, 1, 0.3, 1) ${idx * 10}ms both`,
+                    }}
                   />
                 ))}
 

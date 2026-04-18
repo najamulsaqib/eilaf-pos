@@ -8,7 +8,9 @@ export function useProductsCatalog(init?: {
   pageSize?: number;
 }) {
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(init?.pageSize ?? FALLBACK_PAGE_SIZE);
+  const [pageSize, setPageSize] = useState(
+    init?.pageSize ?? FALLBACK_PAGE_SIZE,
+  );
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [orderBy, setOrderBy] = useState<'default' | 'top_selling'>(

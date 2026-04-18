@@ -201,29 +201,29 @@ export default function SelectField({
           'disabled:bg-slate-700 disabled:text-slate-500 disabled:cursor-not-allowed',
           error
             ? 'border-red-500 focus:border-red-400 focus:ring-red-500/30'
-            : 'border-slate-600 focus:border-blue-500 focus:ring-blue-500/30',
+            : 'border-slate-600 focus:border-primary-500 focus:ring-primary-500/30',
         ].join(' ')
       : [
-          'bg-white text-slate-900 shadow-sm',
-          'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed',
+          'bg-surface text-ink shadow-sm',
+          'disabled:bg-surface-muted disabled:text-ink-ghost disabled:cursor-not-allowed',
           error
             ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/20',
+            : 'border-edge-strong focus:border-primary-500 focus:ring-primary-500/20',
         ].join(' '),
   ].join(' ');
 
   const dropdownClasses = isDark
     ? 'border-slate-600 bg-slate-800'
-    : 'border-slate-200 bg-white';
+    : 'border-edge bg-surface';
 
-  const optionBaseClasses = isDark ? 'text-slate-200' : 'text-slate-900';
+  const optionBaseClasses = isDark ? 'text-slate-200' : 'text-ink';
   const optionHoverClasses = isDark
-    ? 'hover:bg-slate-700 hover:text-white'
-    : 'hover:bg-blue-50 hover:text-blue-900';
-  const emptyTextClasses = isDark ? 'text-slate-400' : 'text-slate-500';
+    ? 'hover:bg-slate-700/40 hover:text-white'
+    : 'hover:bg-edge/40 hover:text-ink';
+  const emptyTextClasses = isDark ? 'text-slate-400' : 'text-ink-faint';
   const checkboxIdleClasses = isDark
     ? 'border-slate-500 bg-slate-700'
-    : 'border-slate-300 bg-white';
+    : 'border-edge-strong bg-surface';
 
   const dropdown = open
     ? createPortal(
@@ -255,12 +255,12 @@ export default function SelectField({
                         <span
                           className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                             selected
-                              ? 'border-blue-500 bg-blue-500'
+                              ? 'border-primary-500 bg-primary-500'
                               : checkboxIdleClasses
                           }`}
                         >
                           {selected && (
-                            <CheckIcon className="h-3 w-3 text-white" />
+                            <CheckIcon className="h-3 w-3 text-ink" />
                           )}
                         </span>
                         <span className={selected ? 'font-medium' : ''}>
@@ -270,7 +270,7 @@ export default function SelectField({
                     ) : (
                       <>
                         <CheckIcon
-                          className={`h-4 w-4 shrink-0 ${selected ? 'text-blue-500' : 'invisible'}`}
+                          className={`h-4 w-4 shrink-0 ${selected ? 'text-primary-500' : 'invisible'}`}
                         />
                         <span className={selected ? 'font-medium' : ''}>
                           {opt.label}
@@ -325,10 +325,10 @@ export default function SelectField({
 
   return (
     <div className={`space-y-1 ${className}`}>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="block text-sm font-medium text-ink-dim">
         {label}
       </label>
-      {hint && <p className="text-sm text-slate-500">{hint}</p>}
+      {hint && <p className="text-sm text-ink-faint">{hint}</p>}
       {combobox}
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>

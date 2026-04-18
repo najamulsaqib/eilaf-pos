@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import IconButton from './IconButton';
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -17,6 +18,7 @@ interface ModalProps {
   bodyClassName?: string;
   /** Tailwind max-height class applied to the panel, e.g. 'max-h-[85vh]'. Body becomes scrollable. */
   maxHeight?: string;
+  header?: ReactNode;
 }
 
 const sizeClasses: Record<ModalSize, string> = {
@@ -38,6 +40,7 @@ export default function Modal({
   hideHeader = false,
   bodyClassName = 'px-6 py-6',
   maxHeight,
+  header,
 }: ModalProps) {
   return (
     <Dialog
@@ -48,36 +51,37 @@ export default function Modal({
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel
-          className={`w-full ${sizeClasses[size]} rounded-xl bg-white shadow-2xl overflow-hidden ${maxHeight ? `${maxHeight} flex flex-col` : ''}`}
+          className={`w-full ${sizeClasses[size]} rounded-xl bg-surface shadow-2xl overflow-hidden ${maxHeight ? `${maxHeight} flex flex-col` : ''}`}
         >
           {!hideHeader && (
-            <div className="px-6 py-4 border-b border-slate-200 shrink-0">
+            <div className="px-6 py-4 border-b border-edge shrink-0">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <DialogTitle className="text-lg font-semibold text-slate-900">
+                  <DialogTitle className="text-lg font-semibold text-ink">
                     {title}
                   </DialogTitle>
                   {description && (
-                    <p className="text-sm text-slate-600 mt-1">{description}</p>
+                    <p className="text-sm text-ink-faint mt-1">{description}</p>
                   )}
                 </div>
-                <button
-                  type="button"
+                <IconButton
+                  icon={XMarkIcon}
                   onClick={onClose}
-                  className="mt-0.5 shrink-0 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                >
-                  <XMarkIcon className="h-5 w-5" />
-                </button>
+                  className="bg-transparent text-ink-ghost hover:bg-ink-ghost/20"
+                />
               </div>
+              {header && <div className="mt-2">{header}</div>}
             </div>
           )}
 
-          <div className={`${bodyClassName}${maxHeight ? ' overflow-y-auto flex-1 min-h-0' : ''}`}>
+          <div
+            className={`${bodyClassName}${maxHeight ? ' overflow-y-auto flex-1 min-h-0' : ''}`}
+          >
             {children}
           </div>
 
           {footer && (
-            <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 shrink-0">
+            <div className="px-6 py-4 bg-surface-muted border-t border-edge shrink-0">
               {footer}
             </div>
           )}

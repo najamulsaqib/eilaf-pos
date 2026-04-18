@@ -1,24 +1,132 @@
 {
   "nav": {
     "dashboard": "Dashboard",
+    "bills": "Bills",
+    "products": "Products",
+    "reports": "Reports",
     "settings": "Settings",
     "signOut": "Sign Out"
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome to the dashboard!",
-    "alfabay": {
-      "title": "Urdu Alphabet — Alif Bay",
-      "hint": "The 39 letters of the Urdu alphabet"
-    }
+    "welcome": "Welcome to the dashboard!"
   },
   "settings": {
     "title": "Settings",
+    "saved": "Settings saved",
+    "business": {
+      "title": "Business Profile",
+      "desc": "This information appears on your printed bills",
+      "navDesc": "Name, address, contact",
+      "name": "Business Name",
+      "namePlaceholder": "e.g. Eilaf Store",
+      "address": "Address",
+      "addressPlaceholder": "e.g. Shop #5, Main Market, Lahore",
+      "phone": "Phone Number",
+      "phonePlaceholder": "e.g. 0300-1234567",
+      "email": "Email",
+      "emailPlaceholder": "store@example.com",
+      "tagline": "Tagline",
+      "taglinePlaceholder": "e.g. Quality you can trust",
+      "save": "Save Business Details"
+    },
+    "receipt": {
+      "title": "Receipt",
+      "desc": "Customize how your printed receipts look",
+      "navDesc": "Logo, footer, layout",
+      "showBusiness": "Show business info on receipts",
+      "showBusinessHint": "Print your business name, address and contact on every receipt",
+      "footer": "Footer message",
+      "footerPlaceholder": "e.g. Thank you for shopping with us!",
+      "footerHint": "Appears at the bottom of every printed receipt",
+      "save": "Save Receipt Settings",
+      "logo": "Receipt Logo",
+      "logoHint": "Appears at the top of every printed receipt",
+      "logoUploadTitle": "Drop your logo here, or",
+      "logoUploadLabel": "PNG or JPG recommended",
+      "logoRemove": "Remove",
+      "logoSaved": "Logo saved",
+      "logoDeleted": "Logo removed",
+      "logoError": "Failed to save logo"
+    },
+    "app": {
+      "title": "App Preferences",
+      "desc": "Configure the app to suit your workflow",
+      "navDesc": "Language, theme, sidebar"
+    },
+    "theme": {
+      "label": "Theme",
+      "hint": "Choose the color theme for the application. Changes apply instantly.",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "sidebar": {
+      "label": "Sidebar style",
+      "hint": "Choose how the navigation sidebar looks. Changes apply instantly.",
+      "full": "Full",
+      "slim": "Compact"
+    },
     "language": {
       "label": "Language",
       "hint": "Choose the display language for the application",
       "en": "English",
       "ur": "اردو (Urdu)"
+    },
+    "account": {
+      "title": "Account",
+      "desc": "Manage your account and session",
+      "navDesc": "Sign out, session",
+      "signOut": "Sign Out",
+      "signOutDesc": "You will need to sign in again to use the app"
+    },
+    "backup": {
+      "title": "Backup & Restore",
+      "desc": "Export your data or restore from a previous backup",
+      "navDesc": "Export, restore",
+      "exportTitle": "Export Backup",
+      "exportDesc": "Save a copy of all your products, bills, and settings to a file.",
+      "export": "Export Backup",
+      "exportSuccess": "Backup saved successfully.",
+      "exportFailed": "Failed to save backup.",
+      "restoreTitle": "Restore from Backup",
+      "restoreDesc": "Replace all current data with data from a backup file. The app will restart automatically.",
+      "restore": "Restore Backup",
+      "restoreConfirmTitle": "Restore Backup?",
+      "restoreConfirmMessage": "This will replace ALL current data (products, bills, settings) with the selected backup. This cannot be undone. The app will restart.",
+      "restoreConfirm": "Yes, Restore",
+      "restoreSuccess": "Restore complete. Restarting...",
+      "restoreFailed": "Restore failed. The file may be invalid or corrupted.",
+      "restoreInvalid": "Invalid backup file. Please select a valid Eilaf POS backup."
+    },
+    "updates": {
+      "title": "Updates",
+      "desc": "Manage the app update channel and check for new versions",
+      "navDesc": "Version, channel",
+      "version": "Current Version",
+      "channel": "Update Channel",
+      "channelHint": "Stable receives tested releases. Beta gets new features earlier but may have bugs.",
+      "stable": "Stable",
+      "beta": "Beta",
+      "checkForUpdates": "Check for Updates",
+      "checking": "Checking...",
+      "upToDate": "You're up to date!",
+      "updateAvailable": "Update available: v{{version}}",
+      "checkFailed": "Could not check for updates.",
+      "channelSaved": "Update channel saved."
+    },
+    "preferences": {
+      "title": "Preferences",
+      "desc": "Configure language, appearance, and account",
+      "navDesc": "Theme, language, account",
+      "displaySection": "Display",
+      "layoutSection": "Layout",
+      "accountSection": "Account"
+    },
+    "system": {
+      "title": "System",
+      "desc": "Manage backups and keep the app up to date",
+      "navDesc": "Backup & updates"
     }
   },
   "common": {
@@ -33,7 +141,183 @@
     "search": "Search",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "close": "Close",
+    "of": "of",
+    "processing": "Processing"
   },
-  "sample": "This is a sample text to demonstrate the English translation. You can replace this with any text you want to display in English."
+  "table": {
+    "noRecords": "No records",
+    "rowsPerPage": "Rows:",
+    "previous": "Previous",
+    "next": "Next",
+    "firstPage": "First page",
+    "lastPage": "Last page"
+  },
+  "pos": {
+    "search": "Search products...",
+    "allCategories": "All",
+    "customItem": "Custom Item",
+    "customItemName": "Item name",
+    "customItemNamePlaceholder": "e.g. Item name",
+    "customItemPrice": "Price (Rs)",
+    "addToBill": "Add to Bill",
+    "currentBill": "Current Bill",
+    "customer": "Customer name (optional)",
+    "emptyCart": "Cart is empty",
+    "emptyCartDesc": "Click a product to add it to the bill",
+    "noProducts": "No products found",
+    "discount": "Discount",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "clearCart": "Clear",
+    "createBill": "Create Bill",
+    "billCreated": "Bill created successfully!",
+    "billError": "Failed to create bill. Please try again.",
+    "todayBills": "Today's Bills",
+    "todayRevenue": "Today's Revenue",
+    "choosePricingOption": "Choose pricing option",
+    "quantity": "Quantity",
+    "invalidQty": "Please enter a valid quantity for the selected unit.",
+    "topSelling": "Top Selling",
+    "sortAZ": "A–Z"
+  },
+  "bills": {
+    "number": "Bill #",
+    "customer": "Customer",
+    "items": "Items",
+    "total": "Total",
+    "date": "Date",
+    "noCustomer": "Walk-in",
+    "empty": "No bills yet",
+    "emptyDesc": "Bills you create will appear here",
+    "print": "Print Bill",
+    "detail": {
+      "title": "Bill Details",
+      "name": "Item",
+      "qty": "Qty",
+      "price": "Price",
+      "total": "Total",
+      "subtotal": "Subtotal"
+    }
+  },
+  "products": {
+    "title": "Products",
+    "total": "products",
+    "add": "Add Product",
+    "edit": "Edit Product",
+    "name": "Name",
+    "namePlaceholder": "Product name",
+    "barcode": "Barcode",
+    "barcodePlaceholder": "e.g. 8963001234567",
+    "noBarcode": "No barcode",
+    "generateBarcode": "Generate barcode",
+    "barcodeLocked": "Barcode is locked. Once assigned, it cannot be changed to protect printed labels.",
+    "printBarcodes": "Print Barcodes",
+    "selectAllBarcoded": "Select All Barcoded",
+    "clearSelection": "Clear Selection",
+    "barcodePrinted": "Barcode labels sent to printer.",
+    "price": "Price",
+    "pricingOptions": "Pricing options",
+    "addPricingOption": "Add option",
+    "removePricingOption": "Remove option",
+    "defaultPricingOption": "Default option",
+    "allowDecimalQty": "Allow decimal quantity",
+    "unit": "Unit",
+    "unitPlaceholder": "e.g. piece, meter, pack",
+    "category": "Category",
+    "categoryPlaceholder": "e.g. Grocery, Dairy",
+    "empty": "No products yet",
+    "emptyDesc": "Add products to start selling",
+    "deleteTitle": "Delete Product",
+    "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
+    "created": "Product added successfully!",
+    "updated": "Product updated successfully!",
+    "deleted": "Product deleted.",
+    "selected": "selected",
+    "printLimitExceeded": "Too many labels selected ({{count}}). Max {{limit}} per print job — narrow your selection and try again.",
+    "selectionCapped": "Selection limited to {{limit}} items. Print this batch first, then select more."
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Generate and print sales reports",
+    "from": "From",
+    "to": "To",
+    "generate": "Generate",
+    "print": "Print Report",
+    "printed": "Report sent to printer.",
+    "empty": "No report generated",
+    "emptyDesc": "Choose a date range and generate report",
+    "totalBills": "Total Bills",
+    "totalDiscount": "Total Discount",
+    "totalRevenue": "Total Revenue",
+    "salesByDay": "Sales by Day",
+    "topItems": "Top Items",
+    "day": "Day",
+    "bills": "Bills",
+    "item": "Item",
+    "qty": "Qty",
+    "amount": "Amount",
+    "tabCharts": "Charts",
+    "tabReport": "Report",
+    "revenueByDay": "Revenue by Day",
+    "billsByDay": "Bills by Day",
+    "peakHours": "Peak Hours",
+    "peakHoursDesc": "Revenue by hour of day — see when customers shop most",
+    "shortcutToday": "Today",
+    "shortcutYesterday": "Yesterday",
+    "shortcut7d": "Last 7 days",
+    "shortcut30d": "Last 30 days",
+    "shortcutThisMonth": "This month"
+  },
+  "auth": {
+    "appName": "Eilaf POS",
+    "footer": "Eilaf POS App © {{year}}",
+    "subtitle": {
+      "login": "Sign in to your account",
+      "forgot": "Reset your password",
+      "otp": "Enter verification code",
+      "reset": "Set new password"
+    },
+    "login": {
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "error": "Login failed. Please try again."
+    },
+    "forgot": {
+      "hint": "Enter your account email and we'll send you a 6-digit verification code.",
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send code",
+      "back": "Back to sign in",
+      "error": "Failed to send code. Please try again."
+    },
+    "otp": {
+      "codeSent": "A 6-digit code was sent to your email.",
+      "codeResent": "A new code was sent to your email.",
+      "label": "6-digit code",
+      "placeholder": "123456",
+      "submit": "Verify code",
+      "back": "Back",
+      "resend": "Resend code",
+      "error": "Invalid or expired code.",
+      "resendError": "Failed to resend code."
+    },
+    "reset": {
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Set new password",
+      "mismatch": "Passwords do not match.",
+      "tooShort": "Password must be at least 6 characters.",
+      "error": "Failed to reset password.",
+      "success": "Password updated successfully. Please sign in."
+    }
+  }
 }

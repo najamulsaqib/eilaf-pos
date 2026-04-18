@@ -874,6 +874,19 @@ const handleRowClick = useCallback(
 
 ---
 
+## TypeScript Naming Conventions
+
+All types in `src/renderer/types/pos.d.ts` are **ambient globals** (no import needed). Follow this prefix convention:
+
+| Kind        | Prefix | Example              |
+| ----------- | ------ | -------------------- |
+| `interface` | `I`    | `IProduct`, `IBill`  |
+| `type`      | `T`    | `TStatus`, `TLocale` |
+
+Never import from `@types/pos` — the `.d.ts` file makes all declarations globally available across the renderer.
+
+---
+
 ## Best Practices
 
 1. **Always use project components** — never raw `<select>`, `<input>` or `<button>` tags

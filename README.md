@@ -2,6 +2,16 @@
 
 eilaf-pos is a desktop point-of-sale application built with Electron and React.
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Dashboard](screenshots/dashboard-light.png) | ![Reports](screenshots/reports-charts.png) |
+| ![Dark mode + Urdu RTL](screenshots/dashboard-dark-urdu.png) | ![Settings](screenshots/settings-dark.png) |
+| ![Dark mode + Compact sidebar](screenshots/dashboard-eng-dark-sidebar-compact.png) | ![Bill PDF](screenshots/bill-pdf.png) |
+
+---
+
 ## Tech Stack
 
 - Electron
@@ -107,6 +117,54 @@ src/renderer/
   contexts/
     LocaleContext.tsx     # LocaleProvider + useLocale hook
 ```
+
+## Backup & Restore
+
+eilaf-pos stores all business data locally in SQLite. The backup system lets you export a snapshot and restore it later — useful before major changes or when migrating to a new machine.
+
+### How it works
+
+- **Export** — `Settings → Backup & Restore → Export Backup`
+  Opens a save dialog and writes a clean `.db` file using `better-sqlite3`'s `.backup()` method. All WAL data is flushed and merged into the file before saving, so the exported file is always consistent.
+
+- **Restore** — `Settings → Backup & Restore → Restore Backup`
+  Opens a file picker, validates the selected file is a valid SQLite database, then:
+  1. Closes the active DB connection
+  2. Removes any stale `-wal` / `-shm` sidecar files
+  3. Copies the backup over the live DB file
+  4. Relaunches the app automatically
+
+> **Warning:** Restore replaces ALL current data (products, bills, settings). This cannot be undone.
+
+### Implementation
+
+| File | Role |
+|---|---|
+| `src/main/ipc/backup.ts` | IPC handlers for `backup:export`, `backup:selectFile`, `backup:import` |
+| `src/main/db/database.ts` | `closeDb()` — safely tears down the SQLite connection before restore |
+| `src/renderer/pages/settings/index.tsx` | Backup & Restore settings tab UI |
+
+---
+
+## Update Channels
+
+eilaf-pos supports two update channels. Users can switch channels in `Settings → Updates`.
+
+| Channel | Description |
+|---|---|
+| **Stable** | Tested releases. Recommended for daily use. |
+| **Beta** | New features released earlier. May contain bugs. |
+
+The selected channel is persisted in the `app_settings` SQLite table under the key `update_channel`. On startup, `applyStoredChannel()` reads this value and sets `autoUpdater.channel` before the first update check runs.
+
+### Implementation
+
+| File | Role |
+|---|---|
+| `src/main/ipc/updater.ts` | IPC handlers for `updater:getChannel`, `updater:setChannel`, `updater:checkForUpdates`, `updater:getVersion` |
+| `src/renderer/pages/settings/index.tsx` | Updates settings tab UI — channel picker + manual update check |
+
+---
 
 ## Scripts
 

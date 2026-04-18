@@ -34,6 +34,7 @@
   --color-ink-dim: #475569; /* text-ink-dim   — secondary text / labels    */
   --color-ink-faint: #64748b; /* text-ink-faint — muted text / descriptions  */
   --color-ink-ghost: #94a3b8; /* text-ink-ghost — placeholder / disabled     */
+  --color-button-on-dark: #ffffff; /* text on dark bg (buttons, badges)      */
   --color-focus-ring: #e53935; /* ring-focus-ring — keyboard focus rings      */
 
   /* ── StatCard accent tokens (light defaults) ─────────────────────────────── */
@@ -78,6 +79,7 @@
     --color-ink-dim: #94a3b8;
     --color-ink-faint: #94a3b8;
     --color-ink-ghost: #64748b;
+    --color-button-on-dark: #f1f5f9; /* light gray for dark mode buttons */
     --color-focus-ring: #ff6258; /* primary-400 — slightly lighter in dark */
 
     /* StatCard accents — muted for dark mode */
@@ -151,5 +153,9 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .text-button-on-dark {
+    color: var(--color-button-on-dark);
   }
 }

@@ -204,7 +204,7 @@ export default function CartPanel({
           type="button"
           disabled={cart.length === 0 || creating}
           onClick={onCreateBill}
-          className="w-full cursor-pointer rounded-2xl bg-primary-600 py-3 text-sm font-bold text-ink shadow-sm transition-all hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-ghost"
+          className="w-full cursor-pointer rounded-2xl bg-primary-600 py-3 text-sm font-bold text-button-on-dark shadow-sm transition-all hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-faint"
         >
           {creating ? '…' : t('pos.createBill')}
         </button>

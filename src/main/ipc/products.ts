@@ -65,10 +65,121 @@ function listProductsWithOptions() {
   }));
 }
 
+function listProductsCatalog(opts: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  category?: string;
+  orderBy?: 'default' | 'top_selling';
+}) {
+  const db = getDb();
+  const {
+    page = 0,
+    pageSize = 40,
+    search = '',
+    category = '',
+    orderBy = 'default',
+  } = opts;
+  const offset = page * pageSize;
+
+  const conditions: string[] = ['p.is_active = 1'];
+  const params: unknown[] = [];
+
+  if (search) {
+    conditions.push('(p.name LIKE ? OR p.barcode LIKE ?)');
+    params.push(`%${search}%`, `%${search}%`);
+  }
+  if (category) {
+    conditions.push('p.category = ?');
+    params.push(category);
+  }
+
+  const where = conditions.join(' AND ');
+
+  const orderClause =
+    orderBy === 'top_selling'
+      ? 'ORDER BY sold_qty DESC, p.name ASC'
+      : 'ORDER BY p.category, p.name';
+
+  const { count } = db
+    .prepare(
+      `SELECT COUNT(*) as count FROM products p WHERE ${where}`,
+    )
+    .get(...params) as { count: number };
+
+  const allCategories = (
+    db
+      .prepare(
+        'SELECT DISTINCT category FROM products WHERE is_active = 1 AND category IS NOT NULL ORDER BY category',
+      )
+      .all() as Array<{ category: string }>
+  ).map((r) => r.category);
+
+  const products = db
+    .prepare(
+      `SELECT p.*, COALESCE(SUM(bi.quantity), 0) AS sold_qty
+       FROM products p
+       LEFT JOIN bill_items bi ON bi.product_id = p.id
+       WHERE ${where}
+       GROUP BY p.id
+       ${orderClause}
+       LIMIT ? OFFSET ?`,
+    )
+    .all(...params, pageSize, offset) as Array<
+    Record<string, unknown> & { id: number }
+  >;
+
+  if (products.length === 0) {
+    return { products: [], total: count, allCategories };
+  }
+
+  const options = db
+    .prepare(
+      `SELECT * FROM product_pricing_options
+       WHERE product_id IN (${products.map(() => '?').join(',')})
+       ORDER BY product_id, sort_order, id`,
+    )
+    .all(...products.map((p) => p.id)) as Array<
+    Record<string, unknown> & { product_id: number }
+  >;
+
+  const byProductId = new Map<number, Array<Record<string, unknown>>>();
+  for (const opt of options) {
+    const list = byProductId.get(opt.product_id) ?? [];
+    list.push(opt);
+    byProductId.set(opt.product_id, list);
+  }
+
+  return {
+    products: products.map((p) => ({
+      ...p,
+      pricing_options: byProductId.get(p.id) ?? [],
+    })),
+    total: count,
+    allCategories,
+  };
+}
+
 export function registerProductHandlers(): void {
   ipcMain.handle('db:products:list', () => {
     return listProductsWithOptions();
   });
+
+  ipcMain.handle(
+    'db:products:catalog',
+    (
+      _,
+      opts: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        category?: string;
+        orderBy?: 'default' | 'top_selling';
+      } = {},
+    ) => {
+      return listProductsCatalog(opts);
+    },
+  );
 
   ipcMain.handle(
     'db:products:create',
@@ -205,4 +316,27 @@ export function registerProductHandlers(): void {
   ipcMain.handle('db:products:delete', (_, id: number) => {
     getDb().prepare('UPDATE products SET is_active = 0 WHERE id = ?').run(id);
   });
+
+  ipcMain.handle(
+    'products:barcode-bulk',
+    (_, opts: { search?: string; category?: string } = {}) => {
+      const db = getDb();
+      const { search = '', category = '' } = opts;
+      const conditions = ['is_active = 1', 'barcode IS NOT NULL'];
+      const params: unknown[] = [];
+      if (search) {
+        conditions.push('(name LIKE ? OR barcode LIKE ?)');
+        params.push(`%${search}%`, `%${search}%`);
+      }
+      if (category) {
+        conditions.push('category = ?');
+        params.push(category);
+      }
+      return db
+        .prepare(
+          `SELECT id, name, barcode, price FROM products WHERE ${conditions.join(' AND ')} ORDER BY name`,
+        )
+        .all(...params);
+    },
+  );
 }

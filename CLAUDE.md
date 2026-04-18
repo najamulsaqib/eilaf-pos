@@ -19,6 +19,8 @@ All coding standards, naming conventions, and architecture rules are defined in 
 
 Key rules to internalize before writing any code:
 
+- **No `dark:` variants in components** — all theming lives in `styles.css`; add new themes there as a single CSS class block
+- **Use semantic color tokens** — `bg-surface`, `text-ink`, `border-edge`, `ring-focus-ring`, `stat-*` etc. instead of hardcoded colors (`bg-white`, `text-slate-*`, `blue-*`)
 - **No direct database calls in pages/components** — renderer accesses data through hooks/services and IPC only
 - **No direct `better-sqlite3` usage in renderer** — SQLite access belongs to `src/main/db/`
 - **Supabase is auth-only** — do not use Supabase for POS business tables

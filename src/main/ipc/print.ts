@@ -2,6 +2,7 @@ import { ipcMain, BrowserWindow, dialog, shell } from 'electron';
 import fs from 'fs';
 import bwipjs from 'bwip-js';
 import { getDb } from '../db/database';
+import { getLogoDataUri } from './logo';
 
 function getSettings(): Record<string, string> {
   const rows = getDb()
@@ -58,7 +59,11 @@ function formatCurrency(n: number): string {
   return `Rs ${n.toLocaleString('en-PK')}`;
 }
 
-function billHtml(bill: IBill, settings: Record<string, string>): string {
+function billHtml(
+  bill: IBill,
+  settings: Record<string, string>,
+  logoDataUri: string | null,
+): string {
   const showBusiness = settings.receipt_show_business !== '0';
   const footer = settings.receipt_footer ?? '';
   const businessName = settings.business_name ?? '';
@@ -79,6 +84,8 @@ function billHtml(bill: IBill, settings: Record<string, string>): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
   <style>
     body { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; padding: 12px; max-width: 300px; }
+    .logo { text-align: center; margin-bottom: 8px; }
+    .logo img { max-height: 64px; max-width: 200px; object-fit: contain; }
     h1 { font-size: 15px; text-align: center; margin: 0 0 2px; }
     .sub { font-size: 11px; text-align: center; color: #555; margin: 0 0 8px; }
     hr { border: none; border-top: 1px dashed #999; margin: 6px 0; }
@@ -93,6 +100,7 @@ function billHtml(bill: IBill, settings: Record<string, string>): string {
     .footer { text-align: center; font-size: 11px; color: #555; margin-top: 8px; }
   </style>
   </head><body>
+  ${logoDataUri ? `<div class="logo"><img src="${logoDataUri}" /></div>` : ''}
   ${showBusiness && businessName ? `<h1>${businessName}</h1>` : '<h1>Receipt</h1>'}
   ${showBusiness && address ? `<p class="sub">${address}</p>` : ''}
   ${showBusiness && phone ? `<p class="sub">${phone}</p>` : ''}
@@ -163,33 +171,42 @@ function reportHtml(
 }
 
 async function barcodeHtml(items: IBarcodePrintItemInput[]): Promise<string> {
-  const labelHtmlParts: string[] = [];
+  const CHUNK = 40;
+  const allLabels: string[] = [];
 
-  for (const item of items) {
-    let imgTag = '';
-    try {
-      const png = await bwipjs.toBuffer({
-        bcid: 'code128',
-        text: item.barcode,
-        scale: 3,
-        height: 12,
-        includetext: true,
-        textxalign: 'center',
-        textsize: 9,
-      });
-      imgTag = `<img src="data:image/png;base64,${png.toString('base64')}" style="max-width:100%;height:auto;" />`;
-    } catch {
-      imgTag = `<div class="barcode-text">${item.barcode}</div>`;
-    }
-
-    const copies = item.copies ?? 1;
-    const label = `
-      <div class="label">
-        <div class="name">${item.name}</div>
-        ${imgTag}
-        ${item.price != null ? `<div class="price">Rs ${item.price}${item.unit ? ` / ${item.unit}` : ''}</div>` : ''}
-      </div>`;
-    for (let i = 0; i < copies; i++) labelHtmlParts.push(label);
+  for (let i = 0; i < items.length; i += CHUNK) {
+    const chunk = items.slice(i, i + CHUNK);
+    const chunkLabels = await Promise.all(
+      chunk.map(async (item) => {
+        let imgTag = '';
+        try {
+          const png = await bwipjs.toBuffer({
+            bcid: 'code128',
+            text: item.barcode,
+            scale: 2,
+            height: 10,
+            includetext: true,
+            textxalign: 'center',
+            textsize: 8,
+          });
+          imgTag = `<img src="data:image/png;base64,${png.toString('base64')}" style="max-width:100%;height:auto;" />`;
+        } catch {
+          imgTag = `<div class="barcode-text">${item.barcode}</div>`;
+        }
+        const label = `
+          <div class="label">
+            <div class="name">${item.name}</div>
+            ${imgTag}
+            ${item.price != null ? `<div class="price">Rs ${item.price}${item.unit ? ` / ${item.unit}` : ''}</div>` : ''}
+          </div>`;
+        return Array(item.copies ?? 1)
+          .fill(label)
+          .join('');
+      }),
+    );
+    allLabels.push(...chunkLabels);
+    // yield between chunks so the event loop stays alive
+    await new Promise<void>((r) => setImmediate(r));
   }
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
@@ -201,7 +218,7 @@ async function barcodeHtml(items: IBarcodePrintItemInput[]): Promise<string> {
     .barcode-text { font-size: 10px; font-family: monospace; letter-spacing: 2px; margin: 4px 0; }
     .price { font-size: 13px; font-weight: bold; margin-top: 4px; }
   </style>
-  </head><body>${labelHtmlParts.join('')}</body></html>`;
+  </head><body>${allLabels.join('')}</body></html>`;
 }
 
 export function registerPrintHandlers(mainWindow: BrowserWindow): void {
@@ -215,7 +232,7 @@ export function registerPrintHandlers(mainWindow: BrowserWindow): void {
       .prepare('SELECT * FROM bill_items WHERE bill_id = ? ORDER BY id')
       .all(billId) as IBillItem[];
     const settings = getSettings();
-    await printHtml(billHtml({ ...bill, items }, settings));
+    await printHtml(billHtml({ ...bill, items }, settings, getLogoDataUri()));
     return { ok: true };
   });
 

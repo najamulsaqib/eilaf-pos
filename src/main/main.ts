@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, nativeTheme } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -20,6 +20,9 @@ import { registerBillHandlers } from './ipc/bills';
 import { registerPrintHandlers } from './ipc/print';
 import { registerSettingsHandlers } from './ipc/settings';
 import { registerReportsHandlers } from './ipc/reports';
+import { registerUpdaterHandlers, applyStoredChannel } from './ipc/updater';
+import { registerBackupHandlers } from './ipc/backup';
+import { registerLogoHandlers } from './ipc/logo';
 
 class AppUpdater {
   constructor() {
@@ -42,6 +45,10 @@ registerProductHandlers();
 registerBillHandlers();
 registerSettingsHandlers();
 registerReportsHandlers();
+registerUpdaterHandlers();
+applyStoredChannel();
+registerBackupHandlers();
+registerLogoHandlers();
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -81,11 +88,18 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  // Get theme-appropriate icon
+  const getAppIcon = (): string => {
+    const isDarkMode = nativeTheme.shouldUseDarkColors;
+    const iconDir = isDarkMode ? 'icons-dark/icons' : 'icons';
+    return getAssetPath(`${iconDir}/256x256.png`);
+  };
+
   mainWindow = new BrowserWindow({
     show: false,
     width: 1024,
     height: 728,
-    icon: getAssetPath('icon.png'),
+    icon: getAppIcon(),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')

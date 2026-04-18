@@ -4,6 +4,13 @@ import path from 'path';
 
 let db: any | null = null;
 
+export function closeDb(): void {
+  if (db) {
+    db.close();
+    db = null;
+  }
+}
+
 export function getDb(): any {
   if (!db) {
     const dbPath = path.join(app.getPath('userData'), 'eilaf-pos.db');

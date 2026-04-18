@@ -3,6 +3,19 @@ const { db } = window.electron;
 export const productsApi = {
   list: () => db.products.list() as Promise<IProduct[]>,
 
+  catalog: (opts?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    category?: string;
+    orderBy?: 'default' | 'top_selling';
+  }) =>
+    db.products.catalog(opts) as Promise<{
+      products: IProduct[];
+      total: number;
+      allCategories: string[];
+    }>,
+
   create: (data: ICreateProductData) =>
     db.products.create(data) as Promise<IProduct>,
 
@@ -11,8 +24,8 @@ export const productsApi = {
 
   delete: (id: number) => db.products.delete(id),
 
-  barcodeBulk: () =>
-    window.electron.products.barcodeBulk() as Promise<IBarcodeBulkItem[]>,
+  barcodeBulk: (opts?: { search?: string; category?: string }) =>
+    window.electron.products.barcodeBulk(opts) as Promise<IBarcodeBulkItem[]>,
 };
 
 export const billsApi = {
@@ -45,6 +58,32 @@ export const reportsApi = {
     window.electron.reports.summary(input) as Promise<IReportSummary>,
 };
 
+export const backupApi = {
+  export: () =>
+    window.electron.backup.export() as Promise<{ ok: boolean }>,
+  selectFile: () =>
+    window.electron.backup.selectFile() as Promise<{ filePath: string | null }>,
+  import: (filePath: string) =>
+    window.electron.backup.import(filePath) as Promise<{
+      ok: boolean;
+      error?: string;
+    }>,
+};
+
+export const updaterApi = {
+  getVersion: () => window.electron.updater.getVersion() as Promise<string>,
+  getChannel: () =>
+    window.electron.updater.getChannel() as Promise<'latest' | 'beta'>,
+  setChannel: (channel: 'latest' | 'beta') =>
+    window.electron.updater.setChannel(channel) as Promise<{ ok: boolean }>,
+  checkForUpdates: () =>
+    window.electron.updater.checkForUpdates() as Promise<{
+      updateAvailable: boolean;
+      version?: string;
+      error?: string;
+    }>,
+};
+
 export const settingsApi = {
   getAll: () =>
     window.electron.settings.getAll() as Promise<Partial<ISettings>>,
@@ -52,4 +91,11 @@ export const settingsApi = {
     window.electron.settings.set(updates as Record<string, string>) as Promise<{
       ok: boolean;
     }>,
+};
+
+export const logoApi = {
+  get: () => window.electron.logo.get(),
+  set: (dataUri: string) =>
+    window.electron.logo.set(dataUri) as Promise<{ ok: boolean }>,
+  delete: () => window.electron.logo.delete() as Promise<{ ok: boolean }>,
 };

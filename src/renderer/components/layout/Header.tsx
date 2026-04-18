@@ -6,7 +6,9 @@ export default function Header() {
   return (
     <header className="p-4 h-auto flex items-center">
       {settings.business_name && (
-        <h1 className="text-2xl text-slate-900">{settings.business_name}</h1>
+        <h1 className="text-2xl text-ink uppercase tracking-wide font-extrabold">
+          {settings.business_name}
+        </h1>
       )}
     </header>
   );

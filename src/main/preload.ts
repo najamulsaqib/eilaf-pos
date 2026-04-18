@@ -34,6 +34,8 @@ const electronHandler = {
   db: {
     products: {
       list: (): Promise<unknown> => ipcRenderer.invoke('db:products:list'),
+      catalog: (opts?: unknown): Promise<unknown> =>
+        ipcRenderer.invoke('db:products:catalog', opts),
       create: (data: unknown): Promise<unknown> =>
         ipcRenderer.invoke('db:products:create', data),
       update: (id: number, data: unknown): Promise<unknown> =>
@@ -67,13 +69,25 @@ const electronHandler = {
       ipcRenderer.invoke('reports:summary', input),
   },
   products: {
-    barcodeBulk: (): Promise<unknown> =>
-      ipcRenderer.invoke('products:barcode-bulk'),
+    barcodeBulk: (opts?: { search?: string; category?: string }): Promise<unknown> =>
+      ipcRenderer.invoke('products:barcode-bulk', opts),
   },
   settings: {
     getAll: (): Promise<unknown> => ipcRenderer.invoke('settings:get-all'),
     set: (updates: Record<string, string>): Promise<unknown> =>
       ipcRenderer.invoke('settings:set', updates),
+  },
+  backup: {
+    export: (): Promise<unknown> => ipcRenderer.invoke('backup:export'),
+    selectFile: (): Promise<unknown> => ipcRenderer.invoke('backup:selectFile'),
+    import: (filePath: string): Promise<unknown> =>
+      ipcRenderer.invoke('backup:import', filePath),
+  },
+  logo: {
+    set: (dataUri: string): Promise<unknown> =>
+      ipcRenderer.invoke('logo:set', dataUri),
+    get: (): Promise<string | null> => ipcRenderer.invoke('logo:get'),
+    delete: (): Promise<unknown> => ipcRenderer.invoke('logo:delete'),
   },
 };
 

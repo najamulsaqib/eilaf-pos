@@ -1,15 +1,16 @@
-import { Route, HashRouter as Router, Routes } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import Dashboard from '@pages/dashboard';
+import LoadingSpinner from '@components/common/LoadingSpinner';
+import { AuthProvider, useAuth } from '@contexts/AuthContext';
+import { LocaleProvider, useLocale } from '@contexts/LocaleContext';
+import { ThemeProvider, useTheme } from '@contexts/ThemeContext';
+import '@i18n/index';
+import LoginPage from '@pages/auth/Login';
 import BillsPage from '@pages/bills';
+import Dashboard from '@pages/dashboard';
 import ProductsPage from '@pages/products';
 import ReportsPage from '@pages/reports';
 import Settings from '@pages/settings';
-import LoginPage from '@pages/auth/Login';
-import { LocaleProvider } from '@contexts/LocaleContext';
-import { AuthProvider, useAuth } from '@contexts/AuthContext';
-import LoadingSpinner from '@components/common/LoadingSpinner';
-import '@i18n/index';
+import { Route, HashRouter as Router, Routes } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import './styles.css';
 
 function AppRoutes() {
@@ -17,7 +18,7 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-surface-raised">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -40,13 +41,28 @@ function AppRoutes() {
   );
 }
 
+function ThemedToaster() {
+  const { isDark } = useTheme();
+  const { isRTL } = useLocale();
+  return (
+    <Toaster
+      position={isRTL ? 'top-left' : 'top-right'}
+      richColors
+      closeButton
+      theme={isDark ? 'dark' : 'light'}
+    />
+  );
+}
+
 export default function App() {
   return (
-    <LocaleProvider>
-      <AuthProvider>
-        <AppRoutes />
-        <Toaster position="top-right" richColors closeButton />
-      </AuthProvider>
-    </LocaleProvider>
+    <ThemeProvider>
+      <LocaleProvider>
+        <AuthProvider>
+          <AppRoutes />
+          <ThemedToaster />
+        </AuthProvider>
+      </LocaleProvider>
+    </ThemeProvider>
   );
 }

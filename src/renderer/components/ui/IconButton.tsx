@@ -1,7 +1,8 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import { Spinner } from './Button';
 
 interface IconButtonProps {
-  icon: ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
   onClick?: () => void;
   disabled?: boolean;
   title?: string;
@@ -9,6 +10,7 @@ interface IconButtonProps {
   className?: string;
   variant?: 'default' | 'subtle' | 'danger';
   size?: 'sm' | 'md' | 'lg';
+  busy?: boolean;
 }
 
 const sizeClasses = {
@@ -17,12 +19,19 @@ const sizeClasses = {
   lg: 'p-2',
 };
 
+const iconSizeClasses = {
+  sm: 'h-4 w-4',
+  md: 'h-4 w-4',
+  lg: 'h-5 w-5',
+};
+
 const variantClasses = {
   default:
-    'hover:bg-slate-200 active:bg-slate-300 transition-colors rounded-md',
-  subtle: 'hover:bg-slate-100 active:bg-slate-200 transition-colors rounded-md',
+    'text-ink-faint hover:bg-edge/40 active:bg-edge-strong/40 hover:text-ink transition-colors rounded-md',
+  subtle:
+    'text-ink-faint hover:bg-surface-muted/40 active:bg-edge/40 hover:text-ink transition-colors rounded-md',
   danger:
-    'text-slate-400 hover:bg-red-50 hover:text-red-600 active:bg-red-100 transition-colors rounded-md',
+    'text-stat-red-icon hover:bg-stat-red-icon-bg active:bg-stat-red-icon-bg transition-colors rounded-md',
 };
 
 export default function IconButton({
@@ -34,7 +43,10 @@ export default function IconButton({
   className = '',
   variant = 'default',
   size = 'md',
+  busy = false,
 }: IconButtonProps) {
+  const Icon = icon;
+
   const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -54,7 +66,11 @@ export default function IconButton({
         ${className}
       `}
     >
-      {icon}
+      {busy ? (
+        <Spinner className={iconSizeClasses[size]} />
+      ) : (
+        <Icon className={iconSizeClasses[size]} />
+      )}
     </button>
   );
 }

@@ -33,17 +33,17 @@ function SlimNavLink({
       className={({ isActive }) =>
         `group relative flex items-center justify-center w-11 h-11 rounded-2xl transition-all ${
           isActive
-            ? 'bg-blue-600 shadow-md shadow-blue-200'
-            : 'hover:bg-slate-100'
+            ? 'bg-primary-600 shadow-md shadow-primary-200 dark:shadow-primary-900/50'
+            : 'hover:bg-surface-muted'
         }`
       }
     >
       {({ isActive }) => (
         <>
           <Icon
-            className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-500'}`}
+            className={`w-5 h-5 ${isActive ? 'text-white' : 'text-ink-ghost'}`}
           />
-          {/* Tooltip */}
+          {/* Tooltip — intentionally dark-on-dark for contrast */}
           <span className="pointer-events-none absolute start-full ms-3 z-50 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
             {label}
           </span>
@@ -65,14 +65,18 @@ function SlimSidebar() {
   ];
 
   return (
-    <div className="flex flex-col items-center w-18 shrink-0 bg-white my-3 ms-3 rounded-2xl shadow-lg shadow-slate-200/60 py-3 gap-3">
+    <div className="flex flex-col items-center w-18 shrink-0 bg-surface my-3 ms-3 rounded-2xl shadow-lg shadow-slate-200/60 dark:shadow-slate-900/60 py-3 gap-3">
       {/* Logo */}
       <div className="flex items-center justify-center w-11 h-11 mb-1">
-        <img src={logo} alt="Eilaf POS" className="h-8 w-8 object-contain" />
+        <img
+          src={logo}
+          alt={t('auth.appName')}
+          className="h-8 w-8 object-contain"
+        />
       </div>
 
       {/* Main nav group */}
-      <div className="flex flex-col items-center gap-1 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100">
+      <div className="flex flex-col items-center gap-1 bg-surface rounded-2xl p-1.5 shadow-sm border border-edge-muted">
         {mainNav.map((item) => (
           <SlimNavLink
             key={item.href}
@@ -88,7 +92,7 @@ function SlimSidebar() {
       <div className="flex-1" />
 
       {/* Settings + Sign out at bottom */}
-      <div className="flex flex-col items-center gap-1 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100">
+      <div className="flex flex-col items-center gap-1 bg-surface rounded-2xl p-1.5 shadow-sm border border-edge-muted">
         <SlimNavLink
           href="/settings"
           icon={Cog6ToothIcon}
@@ -98,9 +102,9 @@ function SlimSidebar() {
           type="button"
           title={t('nav.signOut')}
           onClick={signOut}
-          className="group relative flex items-center justify-center w-11 h-11 rounded-2xl hover:bg-red-50 transition-all cursor-pointer"
+          className="group relative flex items-center justify-center w-11 h-11 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer"
         >
-          <PowerIcon className="w-5 h-5 text-slate-400 group-hover:text-red-500 transition-colors" />
+          <PowerIcon className="w-5 h-5 text-red-500 transition-colors" />
           <span className="pointer-events-none absolute start-full ms-3 z-50 whitespace-nowrap rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
             {t('nav.signOut')}
           </span>
@@ -130,15 +134,15 @@ function FullNavLink({
       className={({ isActive }) =>
         `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer ${
           isActive
-            ? 'bg-blue-50 text-blue-700'
-            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
+            : 'text-ink-dim hover:bg-surface-raised hover:text-ink'
         }`
       }
     >
       {({ isActive }) => (
         <>
           <Icon
-            className={`w-5 h-5 shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400'}`}
+            className={`w-5 h-5 shrink-0 ${isActive ? 'text-primary-600 dark:text-primary-400' : 'text-ink-ghost'}`}
           />
           {label}
         </>
@@ -159,16 +163,18 @@ function FullSidebar() {
   ];
 
   return (
-    <div className="flex flex-col w-56 shrink-0 bg-white my-3 ms-3 rounded-2xl shadow-lg shadow-slate-200/60 overflow-hidden">
-      {/* Logo + app name + business name */}
-      <div className="flex flex-col border-b border-slate-200 px-4 py-3 gap-0.5">
+    <div className="flex flex-col w-56 shrink-0 bg-surface my-3 ms-3 rounded-2xl shadow-lg shadow-slate-200/60 dark:shadow-slate-900/60 overflow-hidden">
+      {/* Logo + app name */}
+      <div className="flex flex-col border-b border-edge px-4 py-3 gap-0.5">
         <div className="flex items-center gap-2.5">
           <img
             src={logo}
-            alt="Eilaf POS"
+            alt={t('auth.appName')}
             className="h-7 w-auto object-contain shrink-0"
           />
-          <span className="text-sm font-bold text-slate-800">Eilaf POS</span>
+          <span className="text-sm font-bold text-ink">
+            {t('auth.appName')}
+          </span>
         </div>
       </div>
 
@@ -186,7 +192,7 @@ function FullSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-slate-100 space-y-0.5">
+      <div className="p-3 border-t border-edge-muted space-y-0.5">
         <FullNavLink
           href="/settings"
           icon={Cog6ToothIcon}
@@ -195,7 +201,7 @@ function FullSidebar() {
         <button
           type="button"
           onClick={signOut}
-          className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-red-500 rounded-xl hover:bg-red-50 transition-colors cursor-pointer"
+          className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-red-500 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
         >
           <PowerIcon className="w-5 h-5 shrink-0" />
           {t('nav.signOut')}

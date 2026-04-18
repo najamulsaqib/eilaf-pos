@@ -48,7 +48,7 @@ export default function TabBar({
     <div className={className}>
       {/* ── Underline variant ── */}
       {variant === 'underline' && (
-        <div className="border-b border-slate-200">
+        <div className="border-b border-edge">
           <div className="-mb-px flex overflow-x-auto">
             {tabs.map((tab) => {
               const active = activeId === tab.id;
@@ -60,13 +60,13 @@ export default function TabBar({
                   onClick={() => handleSelect(tab.id)}
                   className={`flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer ${
                     active
-                      ? 'border-blue-600 text-blue-700'
-                      : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                      ? 'border-primary-600 text-primary-700'
+                      : 'border-transparent text-ink-faint hover:border-edge-strong hover:text-ink-dim'
                   }`}
                 >
                   {Icon && (
                     <Icon
-                      className={`h-4 w-4 ${active ? 'text-blue-600' : 'text-slate-400'}`}
+                      className={`h-4 w-4 ${active ? 'text-primary-600' : 'text-ink-ghost'}`}
                     />
                   )}
                   {tab.label}
@@ -74,8 +74,8 @@ export default function TabBar({
                     <span
                       className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold ${
                         active
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-slate-100 text-slate-600'
+                          ? 'bg-primary-100 text-primary-700'
+                          : 'bg-surface-muted text-ink-dim'
                       }`}
                     >
                       {tab.badge}
@@ -90,7 +90,7 @@ export default function TabBar({
 
       {/* ── Pills variant ── */}
       {variant === 'pills' && (
-        <div className="flex gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1.5">
+        <div className="flex gap-1 overflow-x-auto rounded-xl border border-edge bg-surface-muted p-1.5">
           {tabs.map((tab) => {
             const active = activeId === tab.id;
             const Icon = tab.icon;
@@ -99,22 +99,24 @@ export default function TabBar({
                 key={tab.id}
                 type="button"
                 onClick={() => handleSelect(tab.id)}
-                className={`flex flex-1 shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all cursor-pointer ${
                   active
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-surface text-ink shadow-sm'
+                    : 'text-ink-faint hover:text-ink-dim'
                 }`}
               >
                 {Icon && (
                   <Icon
-                    className={`h-4 w-4 shrink-0 ${active ? 'text-blue-600' : 'text-slate-400'}`}
+                    className={`w-4 h-4 ${active ? 'text-primary-600' : 'text-ink-ghost'}`}
                   />
                 )}
                 {tab.label}
                 {tab.badge !== undefined && (
                   <span
                     className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold ${
-                      active ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'
+                      active
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-surface-muted text-ink-dim'
                     }`}
                   >
                     {tab.badge}

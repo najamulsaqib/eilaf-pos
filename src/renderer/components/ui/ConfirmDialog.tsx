@@ -39,6 +39,7 @@ export default function ConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={Boolean(busy)}
+            size="sm"
           >
             {cancelLabel}
           </Button>
@@ -47,6 +48,7 @@ export default function ConfirmDialog({
             type="button"
             busy={busy}
             onClick={onConfirm}
+            size="sm"
           >
             {confirmLabel}
           </Button>
@@ -60,7 +62,7 @@ export default function ConfirmDialog({
             aria-hidden="true"
           />
         </div>
-        <div className="ml-3 flex-1 mt-0.5 text-sm text-slate-600">
+        <div className="ml-3 flex-1 mt-0.5 text-sm text-ink-faint">
           {message}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { type ButtonHTMLAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -12,11 +13,12 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm',
+    'bg-primary-600 text-button-on-dark hover:bg-primary-700 focus:ring-primary-500 shadow-sm',
   secondary:
-    'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-blue-500',
-  danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
-  ghost: 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-500',
+    'bg-surface text-ink-dim border border-edge-strong hover:bg-surface-raised focus:ring-primary-500',
+  danger:
+    'bg-red-600 text-button-on-dark hover:bg-red-700 focus:ring-red-500 shadow-sm',
+  ghost: 'bg-surface-muted text-ink-dim hover:bg-edge focus:ring-slate-500',
 };
 
 // Padding when button has no icon (text only)
@@ -39,7 +41,7 @@ const iconDimensions: Record<ButtonSize, string> = {
   lg: 'h-4 w-4',
 };
 
-function Spinner({ className }: { className?: string }) {
+export function Spinner({ className }: { className?: string }) {
   return (
     <svg
       className={`animate-spin shrink-0 ${className}`}
@@ -78,9 +80,10 @@ export default function Button({
 }: ButtonProps) {
   const hasIcon = !!Icon;
   const dim = iconDimensions[size];
+  const { t } = useTranslation();
 
   const classes = [
-    'inline-flex items-center justify-center font-semibold rounded-lg whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed',
+    'inline-flex items-center justify-center font-semibold rounded-lg whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed gap-1',
     variantClasses[variant],
     hasIcon ? iconSizeClasses[size] : sizeClasses[size],
     !disabled && !busy && 'hover:-translate-y-0.5',
@@ -108,7 +111,9 @@ export default function Button({
       {busy ? (
         <>
           <Spinner className={dim} />
-          <span className="hidden sm:inline sm:ml-1.5">Processing…</span>
+          <span className="hidden sm:inline sm:ml-1.5">
+            {t('common.processing')}
+          </span>
         </>
       ) : (
         <>

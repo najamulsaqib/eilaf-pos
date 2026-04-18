@@ -1,6 +1,7 @@
 import FloatingActionBar from '@components/common/FloatingActionBar';
 import LoadingSpinner from '@components/common/LoadingSpinner';
 import AppLayout from '@components/layout/AppLayout';
+import Pagination from '@components/table/Pagination';
 import DataTable from '@components/table/DataTable';
 import Button from '@components/ui/Button';
 import CheckboxField from '@components/ui/CheckboxField';
@@ -16,10 +17,11 @@ import {
   PencilIcon,
   PlusCircleIcon,
   PlusIcon,
+  PrinterIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
-import { useProducts } from '@hooks/useProducts';
-import { printApi } from '@services/db';
+import { useProductsCatalog } from '@hooks/useProductsCatalog';
+import { productsApi, printApi } from '@services/db';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -45,6 +47,12 @@ const emptyOption: IOptionForm = {
   isDefault: true,
 };
 
+// TODO: find some way to print full batch without limits!
+// INFO: works fast till 441 limit, after that it doesn't print anything at all,
+// not even an error. only loading spinner keeps spinning. This is likely due to
+// thermal printer buffer overflow or something. Need to investigate more.
+const PRINT_LIMIT = 400;
+
 const emptyForm: IProductForm = {
   name: '',
   barcode: '',
@@ -54,8 +62,21 @@ const emptyForm: IProductForm = {
 
 export default function IProductsPage() {
   const { t } = useTranslation();
-  const { products, loading, createProduct, updateProduct, deleteProduct } =
-    useProducts();
+  const {
+    products,
+    total,
+    loading,
+    page,
+    pageSize,
+    setPage,
+    setPageSize,
+    search,
+    setSearch,
+    category,
+    setCategory,
+    allCategories,
+    reload,
+  } = useProductsCatalog({ orderBy: 'default', pageSize: 30 });
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<IProduct | null>(null);
@@ -63,9 +84,10 @@ export default function IProductsPage() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<IProduct | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedItems, setSelectedItems] = useState<
+    Map<number, IBarcodePrintItemInput>
+  >(new Map());
   const [printingLabels, setPrintingLabels] = useState(false);
-  const [search, setSearch] = useState('');
 
   const openAdd = () => {
     setEditing(null);
@@ -119,13 +141,14 @@ export default function IProductsPage() {
         pricing_options: options,
       };
       if (editing) {
-        await updateProduct(editing.id, data);
+        await productsApi.update(editing.id, data);
         toast.success(t('products.updated'));
       } else {
-        await createProduct(data);
+        await productsApi.create(data);
         toast.success(t('products.created'));
       }
       setFormOpen(false);
+      reload();
     } catch {
       toast.error(t('common.error'));
     } finally {
@@ -137,9 +160,10 @@ export default function IProductsPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await deleteProduct(deleteTarget.id);
+      await productsApi.delete(deleteTarget.id);
       toast.success(t('products.deleted'));
       setDeleteTarget(null);
+      reload();
     } catch {
       toast.error(t('common.error'));
     } finally {
@@ -177,62 +201,94 @@ export default function IProductsPage() {
     }));
   };
 
-  const toggleSelected = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+  const toPrintItem = (p: IProduct): IBarcodePrintItemInput => ({
+    productId: p.id,
+    name: p.name,
+    barcode: p.barcode ?? '',
+    price: p.price,
+    copies: 1,
+  });
+
+  const toggleSelected = (p: IProduct) => {
+    if (!p.barcode) return;
+    setSelectedItems((prev) => {
+      const next = new Map(prev);
+      if (next.has(p.id)) next.delete(p.id);
+      else next.set(p.id, toPrintItem(p));
+      return next;
+    });
   };
 
-  const filtered = search.trim()
-    ? products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          (p.barcode ?? '').includes(search) ||
-          (p.category ?? '').toLowerCase().includes(search.toLowerCase()),
-      )
-    : products;
-
-  const selectedPrintable = products.filter(
-    (p) => selectedIds.includes(p.id) && p.barcode,
-  );
-
-  const barcodedInView = filtered.filter((p) => Boolean(p.barcode));
+  const barcodedInView = products.filter((p) => Boolean(p.barcode));
   const allBarcodedSelected =
     barcodedInView.length > 0 &&
-    barcodedInView.every((p) => selectedIds.includes(p.id));
+    barcodedInView.every((p) => selectedItems.has(p.id));
 
-  const selectAllWithBarcodes = () => {
-    setSelectedIds(barcodedInView.map((p) => p.id));
+  const selectAllWithBarcodes = async () => {
+    const all = await productsApi.barcodeBulk({ search, category });
+    const capped = all.slice(0, PRINT_LIMIT);
+    if (all.length > PRINT_LIMIT) {
+      toast.info(t('products.selectionCapped', { limit: PRINT_LIMIT }));
+    }
+    setSelectedItems(
+      new Map(
+        capped.map((p) => [
+          p.id,
+          {
+            productId: p.id,
+            name: p.name,
+            barcode: p.barcode,
+            price: p.price,
+            copies: 1,
+          },
+        ]),
+      ),
+    );
   };
 
   const toggleSelectAll = () => {
     if (allBarcodedSelected) {
-      setSelectedIds((prev) =>
-        prev.filter((id) => !barcodedInView.some((p) => p.id === id)),
-      );
+      setSelectedItems((prev) => {
+        const next = new Map(prev);
+        barcodedInView.forEach((p) => next.delete(p.id));
+        return next;
+      });
     } else {
-      setSelectedIds((prev) => [
-        ...prev,
-        ...barcodedInView.filter((p) => !prev.includes(p.id)).map((p) => p.id),
-      ]);
+      setSelectedItems((prev) => {
+        const next = new Map(prev);
+        let count = next.size;
+        for (const p of barcodedInView) {
+          if (!p.barcode || next.has(p.id)) continue;
+          if (count >= PRINT_LIMIT) {
+            toast.info(t('products.selectionCapped', { limit: PRINT_LIMIT }));
+            break;
+          }
+          next.set(p.id, toPrintItem(p));
+          count++;
+        }
+        return next;
+      });
     }
   };
 
-  const clearSelection = () => setSelectedIds([]);
+  const clearSelection = () => setSelectedItems(new Map());
+
+  const selectedPrintable = Array.from(selectedItems.values());
 
   const handlePrintSelectedBarcodes = async () => {
     if (selectedPrintable.length === 0) return;
+    if (selectedPrintable.length > PRINT_LIMIT) {
+      toast.error(
+        t('products.printLimitExceeded', {
+          limit: PRINT_LIMIT,
+          count: selectedPrintable.length,
+        }),
+      );
+      return;
+    }
     setPrintingLabels(true);
     try {
-      await printApi.productBarcodes(
-        selectedPrintable.map((p) => ({
-          productId: p.id,
-          name: p.name,
-          barcode: p.barcode ?? '',
-          price: p.price,
-          copies: 1,
-        })),
-      );
+      await printApi.productBarcodes(selectedPrintable);
       toast.success(t('products.barcodePrinted'));
     } catch {
       toast.error(t('common.error'));
@@ -268,15 +324,11 @@ export default function IProductsPage() {
 
   const removeOption = (index: number) => {
     setForm((prev) => {
-      if (prev.pricingOptions.length <= 1) {
-        return prev;
-      }
-
+      if (prev.pricingOptions.length <= 1) return prev;
       const next = prev.pricingOptions.filter((_, idx) => idx !== index);
       if (!next.some((opt) => opt.isDefault)) {
         next[0] = { ...next[0], isDefault: true };
       }
-
       return { ...prev, pricingOptions: next };
     });
   };
@@ -298,9 +350,9 @@ export default function IProductsPage() {
         <CheckboxField
           id={`product-select-${p.id}`}
           label=" "
-          checked={selectedIds.includes(p.id)}
+          checked={selectedItems.has(p.id)}
           disabled={!p.barcode}
-          onChange={() => toggleSelected(p.id)}
+          onChange={() => toggleSelected(p)}
           className="justify-center"
         />
       ),
@@ -309,14 +361,14 @@ export default function IProductsPage() {
       id: 'name',
       header: t('products.name'),
       render: (p: IProduct) => (
-        <span className="font-medium text-slate-900">{p.name}</span>
+        <span className="font-medium text-ink">{p.name}</span>
       ),
     },
     {
       id: 'barcode',
       header: t('products.barcode'),
       render: (p: IProduct) => (
-        <span className="font-mono text-xs text-slate-600">
+        <span className="font-mono text-xs text-ink-dim">
           {p.barcode ?? t('products.noBarcode')}
         </span>
       ),
@@ -327,7 +379,10 @@ export default function IProductsPage() {
       render: (p: IProduct) => (
         <div className="flex flex-col">
           {p.pricing_options.map((opt) => (
-            <span key={opt.id} className="font-semibold text-blue-700 text-xs">
+            <span
+              key={opt.id}
+              className="font-semibold text-primary-700 text-xs"
+            >
               Rs {opt.price.toLocaleString()} / {opt.unit}
             </span>
           ))}
@@ -338,7 +393,7 @@ export default function IProductsPage() {
       id: 'category',
       header: t('products.category'),
       render: (p: IProduct) => (
-        <span className="text-slate-500">{p.category ?? '—'}</span>
+        <span className="text-ink-faint">{p.category ?? '—'}</span>
       ),
     },
     {
@@ -347,13 +402,13 @@ export default function IProductsPage() {
       render: (p: IProduct) => (
         <div className="flex items-center gap-1 justify-end">
           <IconButton
-            icon={<PencilIcon className="w-4 h-4" />}
+            icon={PencilIcon}
             title={t('common.edit')}
             onClick={() => openEdit(p)}
             size="sm"
           />
           <IconButton
-            icon={<TrashIcon className="w-4 h-4" />}
+            icon={TrashIcon}
             title={t('common.delete')}
             variant="danger"
             onClick={() => setDeleteTarget(p)}
@@ -366,43 +421,88 @@ export default function IProductsPage() {
 
   return (
     <AppLayout>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">
-            {t('products.title')}
-          </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            {filtered.length} {t('products.total')}
+          <h1 className="text-xl font-bold text-ink">{t('products.title')}</h1>
+          <p className="text-sm text-ink-faint mt-0.5">
+            {total.toLocaleString()} {t('products.total')}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
-            <MagnifyingGlassIcon className="w-4 h-4 text-slate-400 shrink-0" />
+          <div className="flex items-center gap-2 bg-surface border border-edge rounded-xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-focus-ring focus-within:border-focus-ring">
+            <MagnifyingGlassIcon className="w-4 h-4 text-ink-ghost shrink-0" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('common.search')}
-              className="text-sm text-slate-800 bg-transparent focus:outline-none w-44 placeholder:text-slate-400"
+              className="text-sm text-ink bg-transparent focus:outline-none w-44 placeholder:text-ink-ghost focus:w-64 transition-[width] duration-300"
             />
           </div>
+          <Button
+            icon={PrinterIcon}
+            onClick={handlePrintSelectedBarcodes}
+            disabled={selectedPrintable.length === 0 || printingLabels}
+            busy={printingLabels}
+          >
+            {t('products.printBarcodes')} ({selectedPrintable.length})
+          </Button>
           <Button icon={PlusIcon} onClick={openAdd}>
             {t('products.add')}
           </Button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        {loading ? (
+      {allCategories.length > 0 && (
+        <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+          <button
+            type="button"
+            onClick={() => setCategory('')}
+            className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+              category === ''
+                ? 'bg-primary-600 text-white border-primary-600'
+                : 'bg-surface text-ink-dim border-edge hover:bg-surface-muted'
+            }`}
+          >
+            {t('pos.allCategories')}
+          </button>
+          {allCategories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat === category ? '' : cat)}
+              className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                category === cat
+                  ? 'bg-primary-600 text-white border-primary-600'
+                  : 'bg-surface text-ink-dim border-edge hover:bg-surface-muted'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="rounded-xl overflow-hidden border border-edge">
+        {loading && products.length === 0 ? (
           <div className="flex items-center justify-center h-48">
             <LoadingSpinner size="md" />
           </div>
         ) : (
           <DataTable
             columns={columns}
-            rows={filtered || []}
+            rows={products}
             getRowId={(p) => p.id}
             onRowClick={openEdit}
+            footer={
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
+            }
           />
         )}
       </div>
@@ -412,10 +512,11 @@ export default function IProductsPage() {
         isOpen={formOpen}
         onClose={() => setFormOpen(false)}
         title={editing ? t('products.edit') : t('products.add')}
-        size="sm"
+        size="lg"
         maxHeight="max-h-[80vh]"
+        bodyClassName="px-5 py-5 sm:px-6"
         footer={
-          <div className="flex justify-end gap-2">
+          <div className="flex items-center justify-end gap-3">
             <Button
               variant="secondary"
               size="sm"
@@ -434,47 +535,60 @@ export default function IProductsPage() {
           </div>
         }
       >
-        <div className="space-y-4">
-          <TextField
-            id="p-name"
-            label={t('products.name')}
-            required
-            {...field('name')}
-          />
-
-          <TextField
-            id="p-barcode"
-            label={t('products.barcode')}
-            placeholder={t('products.barcodePlaceholder')}
-            readOnly={Boolean(editing?.barcode)}
-            suffix={
-              editing?.barcode ? (
-                <LockClosedIcon className="w-4 h-4 text-slate-400" />
-              ) : (
-                <IconButton
-                  icon={<ArrowPathIcon className="w-4 h-4" />}
-                  title={t('products.generateBarcode')}
-                  size="sm"
-                  variant="subtle"
-                  onClick={generateBarcode}
-                />
-              )
-            }
-            {...field('barcode')}
-          />
-
-          {editing?.barcode && (
-            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
-              <ExclamationTriangleIcon className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-700">
-                {t('products.barcodeLocked')}
-              </p>
+        <div className="space-y-5">
+          <section className="rounded-xl border border-edge bg-surface-raised p-4 sm:p-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <TextField
+                id="p-name"
+                label={t('products.name')}
+                placeholder={t('products.namePlaceholder')}
+                required
+                {...field('name')}
+              />
+              <TextField
+                id="p-category"
+                label={t('products.category')}
+                placeholder={t('products.categoryPlaceholder')}
+                {...field('category')}
+              />
             </div>
-          )}
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-slate-700">
+            <div className="mt-4">
+              <TextField
+                id="p-barcode"
+                label={t('products.barcode')}
+                placeholder={t('products.barcodePlaceholder')}
+                readOnly={Boolean(editing?.barcode)}
+                suffix={
+                  editing?.barcode ? (
+                    <LockClosedIcon className="h-4 w-4 text-ink-ghost" />
+                  ) : (
+                    <IconButton
+                      icon={ArrowPathIcon}
+                      title={t('products.generateBarcode')}
+                      size="sm"
+                      variant="subtle"
+                      onClick={generateBarcode}
+                    />
+                  )
+                }
+                {...field('barcode')}
+              />
+            </div>
+
+            {editing?.barcode && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg border border-edge bg-surface px-3 py-2.5">
+                <ExclamationTriangleIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" />
+                <p className="text-xs text-ink-faint">
+                  {t('products.barcodeLocked')}
+                </p>
+              </div>
+            )}
+          </section>
+
+          <section className="space-y-3 rounded-xl border border-edge bg-surface p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-edge pb-3">
+              <p className="text-sm font-semibold text-ink">
                 {t('products.pricingOptions')}
               </p>
               <Button
@@ -487,36 +601,50 @@ export default function IProductsPage() {
               </Button>
             </div>
 
-            {form.pricingOptions.map((option, idx) => (
-              <div
-                key={`opt-${idx}`}
-                className="rounded-lg border border-slate-200 p-3 space-y-3"
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  <TextField
-                    id={`p-option-unit-${idx}`}
-                    label={t('products.unit')}
-                    placeholder={t('products.unitPlaceholder')}
-                    value={option.unit}
-                    onChange={(e) =>
-                      updateOption(idx, { unit: e.target.value })
-                    }
-                  />
-                  <TextField
-                    id={`p-option-price-${idx}`}
-                    label={t('products.price')}
-                    type="number"
-                    min="0"
-                    prefix="Rs"
-                    value={option.price}
-                    onChange={(e) =>
-                      updateOption(idx, { price: e.target.value })
-                    }
-                  />
-                </div>
+            <div className="space-y-3">
+              {form.pricingOptions.map((option, idx) => (
+                <div
+                  key={`opt-${idx}`}
+                  className="rounded-xl border border-edge bg-surface-raised p-3 sm:p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                      {t('products.unit')} #{idx + 1}
+                    </p>
+                    <IconButton
+                      icon={TrashIcon}
+                      title={t('products.removePricingOption')}
+                      variant="danger"
+                      disabled={form.pricingOptions.length <= 1}
+                      onClick={() => removeOption(idx)}
+                      size="sm"
+                    />
+                  </div>
 
-                <div className="flex items-center justify-between gap-2">
-                  <div className="grid grid-cols-1 gap-1">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <TextField
+                      id={`p-option-unit-${idx}`}
+                      label={t('products.unit')}
+                      placeholder={t('products.unitPlaceholder')}
+                      value={option.unit}
+                      onChange={(e) =>
+                        updateOption(idx, { unit: e.target.value })
+                      }
+                    />
+                    <TextField
+                      id={`p-option-price-${idx}`}
+                      label={t('products.price')}
+                      type="number"
+                      min="0"
+                      prefix="Rs"
+                      value={option.price}
+                      onChange={(e) =>
+                        updateOption(idx, { price: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="mt-3 grid gap-1 rounded-lg border border-edge bg-surface p-2">
                     <CheckboxField
                       id={`p-option-decimal-${idx}`}
                       label={t('products.allowDecimalQty')}
@@ -532,31 +660,15 @@ export default function IProductsPage() {
                       onChange={() => setDefaultOption(idx)}
                     />
                   </div>
-
-                  <IconButton
-                    icon={<TrashIcon className="w-4 h-4" />}
-                    title={t('products.removePricingOption')}
-                    variant="danger"
-                    disabled={form.pricingOptions.length <= 1}
-                    onClick={() => removeOption(idx)}
-                    size="sm"
-                  />
                 </div>
-              </div>
-            ))}
-          </div>
-
-          <TextField
-            id="p-category"
-            label={t('products.category')}
-            placeholder={t('products.categoryPlaceholder')}
-            {...field('category')}
-          />
+              ))}
+            </div>
+          </section>
         </div>
       </Modal>
 
       <FloatingActionBar
-        selectedCount={selectedIds.length}
+        selectedCount={selectedItems.size}
         printableCount={selectedPrintable.length}
         printing={printingLabels}
         onSelectAllBarcoded={selectAllWithBarcodes}
@@ -564,7 +676,6 @@ export default function IProductsPage() {
         onPrint={handlePrintSelectedBarcodes}
       />
 
-      {/* Delete Confirm */}
       <ConfirmDialog
         isOpen={!!deleteTarget}
         title={t('products.deleteTitle')}

@@ -20,24 +20,24 @@ export default function TextField({
 }: TextFieldProps) {
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="block text-sm font-medium text-ink-dim">
         {label}
       </label>
-      {hint && <p className="text-sm text-slate-500">{hint}</p>}
+      {hint && <p className="text-sm text-ink-faint">{hint}</p>}
       <div className="relative flex items-center">
         {prefix && (
           <div className="absolute left-0 flex items-center pl-3 pointer-events-none">
-            <span className="text-sm font-medium text-slate-500">{prefix}</span>
+            <span className="text-sm font-medium text-ink-faint">{prefix}</span>
           </div>
         )}
         <input
           id={id}
           type="text"
           className={`
-            block w-full rounded-lg border border-slate-300 bg-white py-2.5 text-sm text-slate-900 shadow-sm
-            placeholder:text-slate-400
-            focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
-            disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed
+            block w-full rounded-lg border border-edge-strong bg-surface py-2.5 text-sm text-ink shadow-sm
+            placeholder:text-ink-ghost
+            focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20
+            disabled:bg-surface-muted disabled:text-ink-ghost disabled:cursor-not-allowed
             transition-colors
             ${prefix ? 'pl-12' : 'pl-3'}
             ${suffix ? 'pr-10' : 'pr-3'}

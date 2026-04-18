@@ -86,7 +86,17 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "close": "Close"
+    "close": "Close",
+    "of": "of",
+    "processing": "Processing"
+  },
+  "table": {
+    "noRecords": "No records",
+    "rowsPerPage": "Rows:",
+    "previous": "Previous",
+    "next": "Next",
+    "firstPage": "First page",
+    "lastPage": "Last page"
   },
   "pos": {
     "search": "Search products...",
@@ -112,7 +122,9 @@
     "todayRevenue": "Today's Revenue",
     "choosePricingOption": "Choose pricing option",
     "quantity": "Quantity",
-    "invalidQty": "Please enter a valid quantity for the selected unit."
+    "invalidQty": "Please enter a valid quantity for the selected unit.",
+    "topSelling": "Top Selling",
+    "sortAZ": "A–Z"
   },
   "bills": {
     "number": "Bill #",
@@ -138,7 +150,8 @@
     "total": "products",
     "add": "Add Product",
     "edit": "Edit Product",
-    "name": "Name (English)",
+    "name": "Name",
+    "namePlaceholder": "Product name",
     "barcode": "Barcode",
     "barcodePlaceholder": "e.g. 8963001234567",
     "noBarcode": "No barcode",
@@ -165,7 +178,9 @@
     "created": "Product added successfully!",
     "updated": "Product updated successfully!",
     "deleted": "Product deleted.",
-    "selected": "selected"
+    "selected": "selected",
+    "printLimitExceeded": "Too many labels selected ({{count}}). Max {{limit}} per print job — narrow your selection and try again.",
+    "selectionCapped": "Selection limited to {{limit}} items. Print this batch first, then select more."
   },
   "reports": {
     "title": "Reports",

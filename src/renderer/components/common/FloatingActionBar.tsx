@@ -1,7 +1,8 @@
+import IconButton from '@components/ui/IconButton';
 import {
-  XMarkIcon,
-  PrinterIcon,
   CheckCircleIcon,
+  PrinterIcon,
+  XMarkIcon,
 } from '@heroicons/react/20/solid';
 import { useTranslation } from 'react-i18next';
 
@@ -37,24 +38,21 @@ export default function FloatingActionBar({
 
         {/* Actions */}
         <div className="flex items-center gap-1">
-          <button
-            type="button"
+          <IconButton
+            icon={CheckCircleIcon}
             onClick={onSelectAllBarcoded}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
-          >
-            <CheckCircleIcon className="w-4 h-4" />
-            {t('products.selectAllBarcoded')}
-          </button>
-
-          <button
-            type="button"
+            size="sm"
+            title={t('products.selectAllBarcoded')}
+          />
+          <IconButton
+            icon={PrinterIcon}
             onClick={onPrint}
             disabled={printableCount === 0 || printing}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary-600 hover:bg-primary-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-          >
-            <PrinterIcon className="w-4 h-4" />
-            {t('products.printBarcodes')} ({printableCount})
-          </button>
+            title={t('products.printBarcodes')}
+            size="sm"
+            variant="danger"
+            busy={printing}
+          />
         </div>
 
         {/* Clear */}

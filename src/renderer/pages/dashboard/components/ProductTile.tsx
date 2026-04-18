@@ -41,14 +41,14 @@ export default function ProductTile({
         {product.name}
       </p>
       {product.category && (
-        <p className="mt-1 truncate text-[10px] text-ink-ghost">
+        <p className="mt-1 truncate text-xs text-ink-faint">
           {product.category}
         </p>
       )}
       <div className="mt-2 border-t border-edge-muted pt-1.5">
         <p className="text-xs font-bold text-primary-700">
           {formatCurrency(defaultOption.price)}
-          <span className="ms-1 text-[10px] font-normal text-ink-ghost">
+          <span className="ms-1 text-xs font-normal text-ink-faint">
             / {defaultOption.unit}
           </span>
         </p>

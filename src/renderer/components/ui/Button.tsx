@@ -1,4 +1,5 @@
 import React, { type ButtonHTMLAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -40,7 +41,7 @@ const iconDimensions: Record<ButtonSize, string> = {
   lg: 'h-4 w-4',
 };
 
-function Spinner({ className }: { className?: string }) {
+export function Spinner({ className }: { className?: string }) {
   return (
     <svg
       className={`animate-spin shrink-0 ${className}`}
@@ -79,6 +80,7 @@ export default function Button({
 }: ButtonProps) {
   const hasIcon = !!Icon;
   const dim = iconDimensions[size];
+  const { t } = useTranslation();
 
   const classes = [
     'inline-flex items-center justify-center font-semibold rounded-lg whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed gap-1',
@@ -109,7 +111,9 @@ export default function Button({
       {busy ? (
         <>
           <Spinner className={dim} />
-          <span className="hidden sm:inline sm:ml-1.5">Processing…</span>
+          <span className="hidden sm:inline sm:ml-1.5">
+            {t('common.processing')}
+          </span>
         </>
       ) : (
         <>

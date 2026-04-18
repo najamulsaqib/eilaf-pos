@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { billsApi } from '@services/db';
 
-export function useBills(initialPageSize = 20) {
+export function useBills(initialPageSize = 15) {
   const [bills, setBills] = useState<IBill[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);

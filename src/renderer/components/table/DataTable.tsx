@@ -1,6 +1,7 @@
 import { type CSSProperties, type ReactNode } from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { BugAntIcon } from '@heroicons/react/24/outline';
+import { useLocale } from '@contexts/LocaleContext';
 
 export type SortDirection = 'asc' | 'desc';
 
@@ -152,7 +153,16 @@ export default function DataTable<T>({
   onRowClick,
   footer,
 }: DataTableProps<T>) {
+  const { isRTL } = useLocale();
   const pinOffsets = buildPinOffsets(columns);
+
+  const getAlignClass = (align: 'left' | 'center' | 'right') => {
+    if (!isRTL) return alignClasses[align];
+    // Swap left and right for RTL
+    if (align === 'left') return alignClasses.right;
+    if (align === 'right') return alignClasses.left;
+    return alignClasses[align];
+  };
 
   const handleSort = (columnId: string, sortable?: boolean) => {
     if (!sortable || !onSortChange) return;
@@ -171,7 +181,7 @@ export default function DataTable<T>({
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" dir={isRTL ? 'rtl' : 'ltr'}>
       <table className="min-w-full divide-y divide-edge">
         <thead className="bg-surface-raised">
           <tr>
@@ -180,11 +190,13 @@ export default function DataTable<T>({
               const align = column.align || 'left';
               const sizeStyle = getColumnSizeStyle(column);
               const side = getPinnedSide(column.pinned);
+              const rtlSide =
+                isRTL && side ? (side === 'left' ? 'right' : 'left') : side;
               const pinnedClasses = getPinnedClasses(column.pinned, true);
               const pinnedStyle: CSSProperties =
-                side === 'left'
+                rtlSide === 'left'
                   ? { left: pinOffsets[column.id] }
-                  : side === 'right'
+                  : rtlSide === 'right'
                     ? { right: pinOffsets[column.id] }
                     : {};
 
@@ -193,7 +205,7 @@ export default function DataTable<T>({
                   key={column.id}
                   scope="col"
                   style={{ ...sizeStyle, ...pinnedStyle }}
-                  className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${alignClasses[align]} ${isSorted ? 'text-primary-700 dark:text-primary-400' : 'text-ink-dim'} ${pinnedClasses} ${column.className || ''}`}
+                  className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${getAlignClass(align)} ${isSorted ? 'text-primary-700 dark:text-primary-400' : 'text-ink-dim'} ${pinnedClasses} ${column.className || ''}`}
                 >
                   {column.sortable ? (
                     <button
@@ -228,11 +240,13 @@ export default function DataTable<T>({
                   const align = column.align || 'left';
                   const sizeStyle = getColumnSizeStyle(column);
                   const side = getPinnedSide(column.pinned);
+                  const rtlSide =
+                    isRTL && side ? (side === 'left' ? 'right' : 'left') : side;
                   const pinnedClasses = getPinnedClasses(column.pinned, false);
                   const pinnedStyle: CSSProperties =
-                    side === 'left'
+                    rtlSide === 'left'
                       ? { left: pinOffsets[column.id] }
-                      : side === 'right'
+                      : rtlSide === 'right'
                         ? { right: pinOffsets[column.id] }
                         : {};
 
@@ -240,7 +254,7 @@ export default function DataTable<T>({
                     <td
                       key={`${getRowId(row)}-${column.id}`}
                       style={{ ...sizeStyle, ...pinnedStyle }}
-                      className={`px-6 py-4 text-sm ${alignClasses[align]} ${pinnedClasses} ${column.className || ''}`}
+                      className={`px-6 py-4 text-sm ${getAlignClass(align)} ${pinnedClasses} ${column.className || ''}`}
                       onClick={
                         column.id === 'actions' || column.id === 'checkbox'
                           ? (e) => e.stopPropagation()
@@ -264,7 +278,11 @@ export default function DataTable<T>({
             </tr>
           )}
         </tbody>
-        {footer && <tfoot>{footer}</tfoot>}
+        {footer && (
+          <tfoot>
+            <td colSpan={columns.length}>{footer}</td>
+          </tfoot>
+        )}
       </table>
     </div>
   );

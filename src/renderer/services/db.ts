@@ -3,6 +3,19 @@ const { db } = window.electron;
 export const productsApi = {
   list: () => db.products.list() as Promise<IProduct[]>,
 
+  catalog: (opts?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    category?: string;
+    orderBy?: 'default' | 'top_selling';
+  }) =>
+    db.products.catalog(opts) as Promise<{
+      products: IProduct[];
+      total: number;
+      allCategories: string[];
+    }>,
+
   create: (data: ICreateProductData) =>
     db.products.create(data) as Promise<IProduct>,
 
@@ -11,8 +24,8 @@ export const productsApi = {
 
   delete: (id: number) => db.products.delete(id),
 
-  barcodeBulk: () =>
-    window.electron.products.barcodeBulk() as Promise<IBarcodeBulkItem[]>,
+  barcodeBulk: (opts?: { search?: string; category?: string }) =>
+    window.electron.products.barcodeBulk(opts) as Promise<IBarcodeBulkItem[]>,
 };
 
 export const billsApi = {

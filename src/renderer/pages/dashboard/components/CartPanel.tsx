@@ -6,7 +6,10 @@ import {
   UserIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { billsApi } from '@services/db';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 type CartPanelProps = {
   cart: ICartItem[];
@@ -15,14 +18,13 @@ type CartPanelProps = {
   subtotal: number;
   discountAmt: number;
   total: number;
-  creating: boolean;
   onCustomerNameChange: (value: string) => void;
   onDiscountChange: (value: string) => void;
   onClearCart: () => void;
   onChangeQty: (idx: number, delta: number) => void;
   onSetItemQty: (idx: number, value: string) => void;
   onRemoveItem: (idx: number) => void;
-  onCreateBill: () => void;
+  onBillCreated: (bill: IBill, receiptCart: ICartItem[]) => void;
 };
 
 function fmt(n: number) {
@@ -41,16 +43,36 @@ export default function CartPanel({
   subtotal,
   discountAmt,
   total,
-  creating,
   onCustomerNameChange,
   onDiscountChange,
   onClearCart,
   onChangeQty,
   onSetItemQty,
   onRemoveItem,
-  onCreateBill,
+  onBillCreated,
 }: CartPanelProps) {
   const { t } = useTranslation();
+  const [creating, setCreating] = useState(false);
+
+  const handleCreateBill = async () => {
+    if (cart.length === 0) return;
+    setCreating(true);
+    try {
+      const snapshot = [...cart];
+      const bill = await billsApi.create({
+        customer_name: customerName.trim() || undefined,
+        items: cart,
+        discount: discountAmt || undefined,
+      });
+      onClearCart();
+      onBillCreated(bill, snapshot);
+      toast.success(t('pos.billCreated'));
+    } catch {
+      toast.error(t('pos.billError'));
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <div className="my-3 me-3 flex w-100 flex-col rounded-2xl border border-edge bg-surface shadow-sm">
@@ -121,7 +143,7 @@ export default function CartPanel({
 
               <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-wide text-ink-ghost">
+                  <p className="text-[10px] uppercase tracking-wide text-ink-faint">
                     {t('bills.detail.price')}
                     {item.unit ? ` / ${item.unit}` : ''}
                   </p>
@@ -134,7 +156,7 @@ export default function CartPanel({
                   <IconButton
                     icon={MinusIcon}
                     onClick={() => onRemoveItem(idx)}
-                    className="shrink-0 bg-ink-ghost text-white hover:bg-ink-dim"
+                    className="shrink-0 bg-ink-ghost! text-button-on-dark!"
                     aria-label={t('common.delete')}
                     size="sm"
                   />
@@ -149,13 +171,13 @@ export default function CartPanel({
                   <IconButton
                     icon={PlusIcon}
                     onClick={() => onChangeQty(idx, 1)}
-                    className="shrink-0 bg-primary-500 text-white hover:bg-primary-500"
+                    className="shrink-0 bg-primary-500! !hover:bg-primary-600 text-button-on-dark!"
                     size="sm"
                   />
                 </div>
 
                 <div className="text-end">
-                  <p className="text-[10px] uppercase tracking-wide text-ink-ghost">
+                  <p className="text-[10px] uppercase tracking-wide text-ink-faint">
                     {t('bills.detail.total')}
                   </p>
                   <p className="text-sm font-extrabold text-ink">
@@ -170,7 +192,7 @@ export default function CartPanel({
 
       <div className="shrink-0 space-y-3 border-t border-edge-muted px-5 py-4">
         <div className="flex items-center gap-3">
-          <span className="w-20 shrink-0 text-xs text-ink-ghost">
+          <span className="w-20 shrink-0 text-xs text-ink-faint">
             {t('pos.discount')}
           </span>
           <input
@@ -203,7 +225,7 @@ export default function CartPanel({
         <button
           type="button"
           disabled={cart.length === 0 || creating}
-          onClick={onCreateBill}
+          onClick={handleCreateBill}
           className="w-full cursor-pointer rounded-2xl bg-primary-600 py-3 text-sm font-bold text-button-on-dark shadow-sm transition-all hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-ink-faint"
         >
           {creating ? '…' : t('pos.createBill')}

@@ -1,6 +1,7 @@
 import FloatingActionBar from '@components/common/FloatingActionBar';
 import LoadingSpinner from '@components/common/LoadingSpinner';
 import AppLayout from '@components/layout/AppLayout';
+import Pagination from '@components/table/Pagination';
 import DataTable from '@components/table/DataTable';
 import Button from '@components/ui/Button';
 import CheckboxField from '@components/ui/CheckboxField';
@@ -16,10 +17,11 @@ import {
   PencilIcon,
   PlusCircleIcon,
   PlusIcon,
+  PrinterIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
-import { useProducts } from '@hooks/useProducts';
-import { printApi } from '@services/db';
+import { useProductsCatalog } from '@hooks/useProductsCatalog';
+import { productsApi, printApi } from '@services/db';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -45,6 +47,12 @@ const emptyOption: IOptionForm = {
   isDefault: true,
 };
 
+// TODO: find some way to print full batch without limits!
+// INFO: works fast till 441 limit, after that it doesn't print anything at all,
+// not even an error. only loading spinner keeps spinning. This is likely due to
+// thermal printer buffer overflow or something. Need to investigate more.
+const PRINT_LIMIT = 400;
+
 const emptyForm: IProductForm = {
   name: '',
   barcode: '',
@@ -54,8 +62,21 @@ const emptyForm: IProductForm = {
 
 export default function IProductsPage() {
   const { t } = useTranslation();
-  const { products, loading, createProduct, updateProduct, deleteProduct } =
-    useProducts();
+  const {
+    products,
+    total,
+    loading,
+    page,
+    pageSize,
+    setPage,
+    setPageSize,
+    search,
+    setSearch,
+    category,
+    setCategory,
+    allCategories,
+    reload,
+  } = useProductsCatalog({ orderBy: 'default', pageSize: 30 });
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<IProduct | null>(null);
@@ -63,9 +84,10 @@ export default function IProductsPage() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<IProduct | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedItems, setSelectedItems] = useState<
+    Map<number, IBarcodePrintItemInput>
+  >(new Map());
   const [printingLabels, setPrintingLabels] = useState(false);
-  const [search, setSearch] = useState('');
 
   const openAdd = () => {
     setEditing(null);
@@ -119,13 +141,14 @@ export default function IProductsPage() {
         pricing_options: options,
       };
       if (editing) {
-        await updateProduct(editing.id, data);
+        await productsApi.update(editing.id, data);
         toast.success(t('products.updated'));
       } else {
-        await createProduct(data);
+        await productsApi.create(data);
         toast.success(t('products.created'));
       }
       setFormOpen(false);
+      reload();
     } catch {
       toast.error(t('common.error'));
     } finally {
@@ -137,9 +160,10 @@ export default function IProductsPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      await deleteProduct(deleteTarget.id);
+      await productsApi.delete(deleteTarget.id);
       toast.success(t('products.deleted'));
       setDeleteTarget(null);
+      reload();
     } catch {
       toast.error(t('common.error'));
     } finally {
@@ -177,62 +201,94 @@ export default function IProductsPage() {
     }));
   };
 
-  const toggleSelected = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+  const toPrintItem = (p: IProduct): IBarcodePrintItemInput => ({
+    productId: p.id,
+    name: p.name,
+    barcode: p.barcode ?? '',
+    price: p.price,
+    copies: 1,
+  });
+
+  const toggleSelected = (p: IProduct) => {
+    if (!p.barcode) return;
+    setSelectedItems((prev) => {
+      const next = new Map(prev);
+      if (next.has(p.id)) next.delete(p.id);
+      else next.set(p.id, toPrintItem(p));
+      return next;
+    });
   };
 
-  const filtered = search.trim()
-    ? products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          (p.barcode ?? '').includes(search) ||
-          (p.category ?? '').toLowerCase().includes(search.toLowerCase()),
-      )
-    : products;
-
-  const selectedPrintable = products.filter(
-    (p) => selectedIds.includes(p.id) && p.barcode,
-  );
-
-  const barcodedInView = filtered.filter((p) => Boolean(p.barcode));
+  const barcodedInView = products.filter((p) => Boolean(p.barcode));
   const allBarcodedSelected =
     barcodedInView.length > 0 &&
-    barcodedInView.every((p) => selectedIds.includes(p.id));
+    barcodedInView.every((p) => selectedItems.has(p.id));
 
-  const selectAllWithBarcodes = () => {
-    setSelectedIds(barcodedInView.map((p) => p.id));
+  const selectAllWithBarcodes = async () => {
+    const all = await productsApi.barcodeBulk({ search, category });
+    const capped = all.slice(0, PRINT_LIMIT);
+    if (all.length > PRINT_LIMIT) {
+      toast.info(t('products.selectionCapped', { limit: PRINT_LIMIT }));
+    }
+    setSelectedItems(
+      new Map(
+        capped.map((p) => [
+          p.id,
+          {
+            productId: p.id,
+            name: p.name,
+            barcode: p.barcode,
+            price: p.price,
+            copies: 1,
+          },
+        ]),
+      ),
+    );
   };
 
   const toggleSelectAll = () => {
     if (allBarcodedSelected) {
-      setSelectedIds((prev) =>
-        prev.filter((id) => !barcodedInView.some((p) => p.id === id)),
-      );
+      setSelectedItems((prev) => {
+        const next = new Map(prev);
+        barcodedInView.forEach((p) => next.delete(p.id));
+        return next;
+      });
     } else {
-      setSelectedIds((prev) => [
-        ...prev,
-        ...barcodedInView.filter((p) => !prev.includes(p.id)).map((p) => p.id),
-      ]);
+      setSelectedItems((prev) => {
+        const next = new Map(prev);
+        let count = next.size;
+        for (const p of barcodedInView) {
+          if (!p.barcode || next.has(p.id)) continue;
+          if (count >= PRINT_LIMIT) {
+            toast.info(t('products.selectionCapped', { limit: PRINT_LIMIT }));
+            break;
+          }
+          next.set(p.id, toPrintItem(p));
+          count++;
+        }
+        return next;
+      });
     }
   };
 
-  const clearSelection = () => setSelectedIds([]);
+  const clearSelection = () => setSelectedItems(new Map());
+
+  const selectedPrintable = Array.from(selectedItems.values());
 
   const handlePrintSelectedBarcodes = async () => {
     if (selectedPrintable.length === 0) return;
+    if (selectedPrintable.length > PRINT_LIMIT) {
+      toast.error(
+        t('products.printLimitExceeded', {
+          limit: PRINT_LIMIT,
+          count: selectedPrintable.length,
+        }),
+      );
+      return;
+    }
     setPrintingLabels(true);
     try {
-      await printApi.productBarcodes(
-        selectedPrintable.map((p) => ({
-          productId: p.id,
-          name: p.name,
-          barcode: p.barcode ?? '',
-          price: p.price,
-          copies: 1,
-        })),
-      );
+      await printApi.productBarcodes(selectedPrintable);
       toast.success(t('products.barcodePrinted'));
     } catch {
       toast.error(t('common.error'));
@@ -268,15 +324,11 @@ export default function IProductsPage() {
 
   const removeOption = (index: number) => {
     setForm((prev) => {
-      if (prev.pricingOptions.length <= 1) {
-        return prev;
-      }
-
+      if (prev.pricingOptions.length <= 1) return prev;
       const next = prev.pricingOptions.filter((_, idx) => idx !== index);
       if (!next.some((opt) => opt.isDefault)) {
         next[0] = { ...next[0], isDefault: true };
       }
-
       return { ...prev, pricingOptions: next };
     });
   };
@@ -298,9 +350,9 @@ export default function IProductsPage() {
         <CheckboxField
           id={`product-select-${p.id}`}
           label=" "
-          checked={selectedIds.includes(p.id)}
+          checked={selectedItems.has(p.id)}
           disabled={!p.barcode}
-          onChange={() => toggleSelected(p.id)}
+          onChange={() => toggleSelected(p)}
           className="justify-center"
         />
       ),
@@ -369,11 +421,11 @@ export default function IProductsPage() {
 
   return (
     <AppLayout>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-xl font-bold text-ink">{t('products.title')}</h1>
           <p className="text-sm text-ink-faint mt-0.5">
-            {filtered.length} {t('products.total')}
+            {total.toLocaleString()} {t('products.total')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -384,26 +436,73 @@ export default function IProductsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('common.search')}
-              className="text-sm text-slate-800 bg-transparent focus:outline-none w-44 placeholder:text-slate-400 focus:w-64 transition-[width] duration-300"
+              className="text-sm text-ink bg-transparent focus:outline-none w-44 placeholder:text-ink-ghost focus:w-64 transition-[width] duration-300"
             />
           </div>
+          <Button
+            icon={PrinterIcon}
+            onClick={handlePrintSelectedBarcodes}
+            disabled={selectedPrintable.length === 0 || printingLabels}
+            busy={printingLabels}
+          >
+            {t('products.printBarcodes')} ({selectedPrintable.length})
+          </Button>
           <Button icon={PlusIcon} onClick={openAdd}>
             {t('products.add')}
           </Button>
         </div>
       </div>
 
+      {allCategories.length > 0 && (
+        <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+          <button
+            type="button"
+            onClick={() => setCategory('')}
+            className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+              category === ''
+                ? 'bg-primary-600 text-white border-primary-600'
+                : 'bg-surface text-ink-dim border-edge hover:bg-surface-muted'
+            }`}
+          >
+            {t('pos.allCategories')}
+          </button>
+          {allCategories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setCategory(cat === category ? '' : cat)}
+              className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                category === cat
+                  ? 'bg-primary-600 text-white border-primary-600'
+                  : 'bg-surface text-ink-dim border-edge hover:bg-surface-muted'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="rounded-xl overflow-hidden border border-edge">
-        {loading ? (
+        {loading && products.length === 0 ? (
           <div className="flex items-center justify-center h-48">
             <LoadingSpinner size="md" />
           </div>
         ) : (
           <DataTable
             columns={columns}
-            rows={filtered || []}
+            rows={products}
             getRowId={(p) => p.id}
             onRowClick={openEdit}
+            footer={
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
+            }
           />
         )}
       </div>
@@ -442,6 +541,7 @@ export default function IProductsPage() {
               <TextField
                 id="p-name"
                 label={t('products.name')}
+                placeholder={t('products.namePlaceholder')}
                 required
                 {...field('name')}
               />
@@ -568,7 +668,7 @@ export default function IProductsPage() {
       </Modal>
 
       <FloatingActionBar
-        selectedCount={selectedIds.length}
+        selectedCount={selectedItems.size}
         printableCount={selectedPrintable.length}
         printing={printingLabels}
         onSelectAllBarcoded={selectAllWithBarcodes}
@@ -576,7 +676,6 @@ export default function IProductsPage() {
         onPrint={handlePrintSelectedBarcodes}
       />
 
-      {/* Delete Confirm */}
       <ConfirmDialog
         isOpen={!!deleteTarget}
         title={t('products.deleteTitle')}

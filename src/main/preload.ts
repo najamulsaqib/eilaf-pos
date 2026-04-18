@@ -34,6 +34,8 @@ const electronHandler = {
   db: {
     products: {
       list: (): Promise<unknown> => ipcRenderer.invoke('db:products:list'),
+      catalog: (opts?: unknown): Promise<unknown> =>
+        ipcRenderer.invoke('db:products:catalog', opts),
       create: (data: unknown): Promise<unknown> =>
         ipcRenderer.invoke('db:products:create', data),
       update: (id: number, data: unknown): Promise<unknown> =>
@@ -67,8 +69,8 @@ const electronHandler = {
       ipcRenderer.invoke('reports:summary', input),
   },
   products: {
-    barcodeBulk: (): Promise<unknown> =>
-      ipcRenderer.invoke('products:barcode-bulk'),
+    barcodeBulk: (opts?: { search?: string; category?: string }): Promise<unknown> =>
+      ipcRenderer.invoke('products:barcode-bulk', opts),
   },
   settings: {
     getAll: (): Promise<unknown> => ipcRenderer.invoke('settings:get-all'),

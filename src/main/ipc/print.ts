@@ -163,33 +163,40 @@ function reportHtml(
 }
 
 async function barcodeHtml(items: IBarcodePrintItemInput[]): Promise<string> {
-  const labelHtmlParts: string[] = [];
+  const CHUNK = 40;
+  const allLabels: string[] = [];
 
-  for (const item of items) {
-    let imgTag = '';
-    try {
-      const png = await bwipjs.toBuffer({
-        bcid: 'code128',
-        text: item.barcode,
-        scale: 3,
-        height: 12,
-        includetext: true,
-        textxalign: 'center',
-        textsize: 9,
-      });
-      imgTag = `<img src="data:image/png;base64,${png.toString('base64')}" style="max-width:100%;height:auto;" />`;
-    } catch {
-      imgTag = `<div class="barcode-text">${item.barcode}</div>`;
-    }
-
-    const copies = item.copies ?? 1;
-    const label = `
-      <div class="label">
-        <div class="name">${item.name}</div>
-        ${imgTag}
-        ${item.price != null ? `<div class="price">Rs ${item.price}${item.unit ? ` / ${item.unit}` : ''}</div>` : ''}
-      </div>`;
-    for (let i = 0; i < copies; i++) labelHtmlParts.push(label);
+  for (let i = 0; i < items.length; i += CHUNK) {
+    const chunk = items.slice(i, i + CHUNK);
+    const chunkLabels = await Promise.all(
+      chunk.map(async (item) => {
+        let imgTag = '';
+        try {
+          const png = await bwipjs.toBuffer({
+            bcid: 'code128',
+            text: item.barcode,
+            scale: 2,
+            height: 10,
+            includetext: true,
+            textxalign: 'center',
+            textsize: 8,
+          });
+          imgTag = `<img src="data:image/png;base64,${png.toString('base64')}" style="max-width:100%;height:auto;" />`;
+        } catch {
+          imgTag = `<div class="barcode-text">${item.barcode}</div>`;
+        }
+        const label = `
+          <div class="label">
+            <div class="name">${item.name}</div>
+            ${imgTag}
+            ${item.price != null ? `<div class="price">Rs ${item.price}${item.unit ? ` / ${item.unit}` : ''}</div>` : ''}
+          </div>`;
+        return Array(item.copies ?? 1).fill(label).join('');
+      }),
+    );
+    allLabels.push(...chunkLabels);
+    // yield between chunks so the event loop stays alive
+    await new Promise<void>((r) => setImmediate(r));
   }
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
@@ -201,7 +208,7 @@ async function barcodeHtml(items: IBarcodePrintItemInput[]): Promise<string> {
     .barcode-text { font-size: 10px; font-family: monospace; letter-spacing: 2px; margin: 4px 0; }
     .price { font-size: 13px; font-weight: bold; margin-top: 4px; }
   </style>
-  </head><body>${labelHtmlParts.join('')}</body></html>`;
+  </head><body>${allLabels.join('')}</body></html>`;
 }
 
 export function registerPrintHandlers(mainWindow: BrowserWindow): void {

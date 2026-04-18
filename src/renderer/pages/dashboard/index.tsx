@@ -1,23 +1,24 @@
 import EmptyState from '@components/common/EmptyState';
 import LoadingSpinner from '@components/common/LoadingSpinner';
 import AppLayout from '@components/layout/AppLayout';
-import Button from '@components/ui/Button';
 import IconButton from '@components/ui/IconButton';
-import Modal from '@components/ui/Modal';
-import SelectField from '@components/ui/SelectField';
-import TextField from '@components/ui/TextField';
+import {
+  ArrowTrendingUpIcon,
+  Bars3BottomLeftIcon,
+} from '@heroicons/react/20/solid';
 import {
   CubeIcon,
   MagnifyingGlassIcon,
   PlusCircleIcon,
-  PrinterIcon,
-  UserIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { useProducts } from '@hooks/useProducts';
+import { useProductsCatalog } from '@hooks/useProductsCatalog';
 import CartPanel from '@pages/dashboard/components/CartPanel';
+import CustomItemModal from '@pages/dashboard/components/CustomItemModal';
+import PricingOptionModal from '@pages/dashboard/components/PricingOptionModal';
+import ProductPagination from '@pages/dashboard/components/ProductPagination';
 import ProductTile from '@pages/dashboard/components/ProductTile';
-import { billsApi, printApi } from '@services/db';
+import ReceiptModal from '@pages/dashboard/components/ReceiptModal';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -45,17 +46,28 @@ function pricingOptionsFor(p: IProduct): IProductPricingOption[] {
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const { products, loading: productsLoading } = useProducts();
+  const {
+    products,
+    total,
+    allCategories,
+    loading: productsLoading,
+    loadKey,
+    page,
+    pageSize,
+    totalPages,
+    setPage,
+    search,
+    setSearch,
+    category: activeCategory,
+    setCategory: setActiveCategory,
+    orderBy,
+    setOrderBy,
+  } = useProductsCatalog();
 
   // Cart state
   const [cart, setCart] = useState<ICartItem[]>([]);
   const [customerName, setCustomerName] = useState('');
   const [discount, setDiscount] = useState('');
-  const [creating, setCreating] = useState(false);
-
-  // Product browsing
-  const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState('');
 
   // Custom item modal
   const [customOpen, setCustomOpen] = useState(false);
@@ -71,26 +83,10 @@ export default function Dashboard() {
   // Receipt modal
   const [receipt, setReceipt] = useState<IBill | null>(null);
   const [receiptCart, setReceiptCart] = useState<ICartItem[]>([]);
-  const [printing, setPrinting] = useState(false);
-
-  // Derived
-  const categories = [
-    '',
-    ...(Array.from(
-      new Set(products.map((p) => p.category).filter(Boolean)),
-    ) as string[]),
-  ];
-
-  const filtered = products.filter((p) => {
-    const matchCat = !activeCategory || p.category === activeCategory;
-    const matchSearch =
-      !search || p.name.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  });
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const discountAmt = Math.min(parseFloat(discount) || 0, subtotal);
-  const total = subtotal - discountAmt;
+  const cartTotal = subtotal - discountAmt;
 
   // Cart operations
   const addProductWithPricing = (
@@ -223,37 +219,9 @@ export default function Dashboard() {
       )
     : undefined;
 
-  const handleCreateBill = async () => {
-    if (cart.length === 0) return;
-    setCreating(true);
-    try {
-      const snapshot = [...cart];
-      const bill = await billsApi.create({
-        customer_name: customerName.trim() || undefined,
-        items: cart,
-        discount: discountAmt || undefined,
-      });
-      clearCart();
-      setReceiptCart(snapshot);
-      setReceipt(bill);
-      toast.success(t('pos.billCreated'));
-    } catch {
-      toast.error(t('pos.billError'));
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const handlePrint = async () => {
-    if (!receipt) return;
-    setPrinting(true);
-    try {
-      await printApi.bill(receipt.id);
-    } catch {
-      toast.error(t('common.error'));
-    } finally {
-      setPrinting(false);
-    }
+  const handleCreateBill = (bill: IBill, cartSnapshot: ICartItem[]) => {
+    setReceiptCart(cartSnapshot);
+    setReceipt(bill);
   };
 
   return (
@@ -261,9 +229,9 @@ export default function Dashboard() {
       <div className="flex h-full">
         {/* ── Left: Products ── */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Top bar: search */}
-          <div className="shrink-0 px-4 py-3">
-            <div className="relative">
+          {/* Search + sort */}
+          <div className="shrink-0 flex items-center gap-2 px-4 py-3">
+            <div className="relative flex-1">
               <MagnifyingGlassIcon className="absolute inset-s-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-ghost pointer-events-none" />
               <input
                 type="text"
@@ -283,18 +251,36 @@ export default function Dashboard() {
                 />
               )}
             </div>
+            <button
+              type="button"
+              onClick={() =>
+                setOrderBy(
+                  orderBy === 'top_selling' ? 'default' : 'top_selling',
+                )
+              }
+              className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl border border-edge bg-surface text-xs font-semibold text-ink-dim hover:bg-surface-muted transition-colors cursor-pointer"
+            >
+              {orderBy === 'top_selling' ? (
+                <ArrowTrendingUpIcon className="w-4 h-4 text-primary-500" />
+              ) : (
+                <Bars3BottomLeftIcon className="w-4 h-4 text-ink-ghost" />
+              )}
+              {orderBy === 'top_selling'
+                ? t('pos.topSelling')
+                : t('pos.sortAZ')}
+            </button>
           </div>
 
-          {/* Category tabs */}
-          <div className="shrink-0 flex gap-1.5 px-4 pb-2.5 overflow-x-auto">
-            {categories.map((cat) => (
+          {/* Category pills */}
+          <div className="shrink-0 flex items-center gap-1.5 px-4 pb-2.5 overflow-x-auto">
+            {(['', ...allCategories] as string[]).map((cat) => (
               <button
                 key={cat || '__all__'}
                 type="button"
                 onClick={() => setActiveCategory(cat)}
                 className={`shrink-0 px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
                   activeCategory === cat
-                    ? 'bg-primary-600 text-white shadow-sm shadow-primary-200 dark:shadow-primary-900/50'
+                    ? 'bg-primary-600 text-white shadow-sm'
                     : 'bg-surface-muted text-ink-faint hover:bg-edge hover:text-ink-dim'
                 }`}
               >
@@ -305,12 +291,15 @@ export default function Dashboard() {
 
           {/* Product grid */}
           <div className="flex-1 overflow-y-auto p-4">
-            {productsLoading ? (
+            {productsLoading && products.length === 0 ? (
               <div className="flex items-center justify-center h-40">
                 <LoadingSpinner size="md" />
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              <div
+                key={loadKey}
+                className={`animate-grid-in grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 transition-opacity duration-150 ${productsLoading ? 'opacity-40' : 'opacity-100'}`}
+              >
                 {/* Custom item tile */}
                 <button
                   type="button"
@@ -321,7 +310,7 @@ export default function Dashboard() {
                   <p className="text-xs font-semibold">{t('pos.customItem')}</p>
                 </button>
 
-                {filtered.map((p) => (
+                {products.map((p) => (
                   <ProductTile
                     key={p.id}
                     product={p}
@@ -330,7 +319,7 @@ export default function Dashboard() {
                   />
                 ))}
 
-                {filtered.length === 0 && !search && (
+                {products.length === 0 && (
                   <div className="col-span-full">
                     <EmptyState
                       icon={<CubeIcon className="w-12 h-12" />}
@@ -342,6 +331,18 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+
+          {/* Pagination bar */}
+          {totalPages > 1 && (
+            <ProductPagination
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              totalPages={totalPages}
+              onPrevious={() => setPage(page - 1)}
+              onNext={() => setPage(page + 1)}
+            />
+          )}
         </div>
 
         <CartPanel
@@ -350,213 +351,49 @@ export default function Dashboard() {
           discount={discount}
           subtotal={subtotal}
           discountAmt={discountAmt}
-          total={total}
-          creating={creating}
+          total={cartTotal}
           onCustomerNameChange={setCustomerName}
           onDiscountChange={setDiscount}
           onClearCart={clearCart}
           onChangeQty={changeQty}
           onSetItemQty={setItemQty}
           onRemoveItem={removeItem}
-          onCreateBill={handleCreateBill}
+          onBillCreated={handleCreateBill}
         />
       </div>
 
       {/* Custom Item Modal */}
-      <Modal
+      <CustomItemModal
         isOpen={customOpen}
+        customName={customName}
+        customPrice={customPrice}
+        onCustomNameChange={setCustomName}
+        onCustomPriceChange={setCustomPrice}
         onClose={() => setCustomOpen(false)}
-        title={t('pos.customItem')}
-        size="sm"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setCustomOpen(false)}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              size="sm"
-              onClick={addCustomItem}
-              disabled={!customName.trim() || !customPrice}
-            >
-              {t('pos.addToBill')}
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-4">
-          <TextField
-            id="custom-name"
-            label={t('pos.customItemName')}
-            value={customName}
-            onChange={(e) => setCustomName(e.target.value)}
-            placeholder={t('pos.customItemNamePlaceholder')}
-          />
-          <TextField
-            id="custom-price"
-            label={t('pos.customItemPrice')}
-            type="number"
-            min="0"
-            value={customPrice}
-            onChange={(e) => setCustomPrice(e.target.value)}
-            placeholder="0"
-            prefix="Rs"
-          />
-        </div>
-      </Modal>
+        onAdd={addCustomItem}
+      />
 
-      <Modal
+      <PricingOptionModal
         isOpen={!!pricingPickerProduct}
+        product={pricingPickerProduct}
+        selectedPricingId={selectedPricingId}
+        selectedPricingQty={selectedPricingQty}
+        pricingOptions={pricingSelectOptions}
+        selectedPricingOption={selectedPricingOption}
+        onPricingIdChange={setSelectedPricingId}
+        onPricingQtyChange={setSelectedPricingQty}
         onClose={() => setPricingPickerProduct(null)}
-        title={t('pos.choosePricingOption')}
-        size="sm"
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setPricingPickerProduct(null)}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              size="sm"
-              onClick={confirmPricingSelection}
-              disabled={!selectedPricingId || !selectedPricingQty}
-            >
-              {t('pos.addToBill')}
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-4">
-          <SelectField
-            id="pricing-option"
-            label={t('products.pricingOptions')}
-            value={selectedPricingId}
-            onChange={setSelectedPricingId}
-            options={pricingSelectOptions}
-            placeholder={t('pos.choosePricingOption')}
-          />
-
-          <TextField
-            id="pricing-qty"
-            label={t('pos.quantity')}
-            type="number"
-            min={selectedPricingOption?.allows_decimal === 1 ? '0.01' : '1'}
-            step={selectedPricingOption?.allows_decimal === 1 ? '0.25' : '1'}
-            value={selectedPricingQty}
-            onChange={(e) => setSelectedPricingQty(e.target.value)}
-          />
-        </div>
-      </Modal>
+        onConfirm={confirmPricingSelection}
+      />
 
       {/* Receipt Modal */}
-      <Modal
+      <ReceiptModal
         isOpen={!!receipt}
+        receipt={receipt}
+        receiptCart={receiptCart}
         onClose={() => setReceipt(null)}
-        title={
-          receipt ? `${t('bills.detail.title')} — ${receipt.bill_number}` : ''
-        }
-        size="md"
-        maxHeight="max-h-[85vh]"
-        footer={
-          <div className="flex justify-between gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setReceipt(null)}
-            >
-              {t('common.close')}
-            </Button>
-            <Button
-              size="sm"
-              icon={PrinterIcon}
-              busy={printing}
-              onClick={handlePrint}
-            >
-              {t('bills.print')}
-            </Button>
-          </div>
-        }
-      >
-        {receipt && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-4 text-sm text-ink-dim pb-3 border-b border-edge-muted">
-              <span className="flex items-center gap-1.5">
-                <UserIcon className="w-4 h-4 text-ink-ghost" />
-                {receipt.customer_name || t('bills.noCustomer')}
-              </span>
-              <span className="text-ink-ghost">
-                {new Date(receipt.created_at).toLocaleString('en-PK', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
-            </div>
-
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-edge-muted text-ink-faint text-xs uppercase tracking-wide">
-                  <th className="text-start pb-2 font-medium">
-                    {t('bills.detail.name')}
-                  </th>
-                  <th className="text-center pb-2 font-medium w-16">
-                    {t('bills.detail.qty')}
-                  </th>
-                  <th className="text-end pb-2 font-medium w-24">
-                    {t('bills.detail.price')}
-                  </th>
-                  <th className="text-end pb-2 font-medium w-24">
-                    {t('bills.detail.total')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-edge-muted">
-                {receiptCart.map((item, idx) => (
-                  <tr key={idx}>
-                    <td className="py-2 text-ink font-medium">{item.name}</td>
-                    <td className="py-2 text-center text-ink-dim">
-                      {item.quantity}
-                    </td>
-                    <td className="py-2 text-end text-ink-dim">
-                      {fmt(item.price)}
-                    </td>
-                    <td className="py-2 text-end font-semibold text-ink">
-                      {fmt(item.price * item.quantity)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="border-t border-edge pt-3 space-y-1.5 text-sm">
-              <div className="flex justify-between text-ink-faint">
-                <span>{t('bills.detail.subtotal')}</span>
-                <span>{fmt(receipt.subtotal)}</span>
-              </div>
-              {receipt.discount > 0 && (
-                <div className="flex justify-between text-green-600 dark:text-green-400">
-                  <span>{t('pos.discount')}</span>
-                  <span>- {fmt(receipt.discount)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-base font-bold text-ink pt-1 border-t border-edge-muted">
-                <span>{t('pos.total')}</span>
-                <span className="text-primary-700 dark:text-primary-400">
-                  {fmt(receipt.total)}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
+        formatCurrency={fmt}
+      />
     </AppLayout>
   );
 }

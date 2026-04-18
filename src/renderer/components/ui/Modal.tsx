@@ -18,6 +18,7 @@ interface ModalProps {
   bodyClassName?: string;
   /** Tailwind max-height class applied to the panel, e.g. 'max-h-[85vh]'. Body becomes scrollable. */
   maxHeight?: string;
+  header?: ReactNode;
 }
 
 const sizeClasses: Record<ModalSize, string> = {
@@ -39,6 +40,7 @@ export default function Modal({
   hideHeader = false,
   bodyClassName = 'px-6 py-6',
   maxHeight,
+  header,
 }: ModalProps) {
   return (
     <Dialog
@@ -68,6 +70,7 @@ export default function Modal({
                   className="bg-transparent text-ink-ghost hover:bg-ink-ghost/20"
                 />
               </div>
+              {header && <div className="mt-2">{header}</div>}
             </div>
           )}
 

@@ -24,7 +24,7 @@ export default function CheckboxField({
         <input
           id={id}
           type="checkbox"
-          className="me-2 h-4 w-4 accent-primary-600 focus:ring-focus-ring not-checked:appearance-none not-checked:rounded not-checked:border not-checked:border-edge-strong not-checked:bg-surface-muted"
+          className="me-2 h-4 w-4 accent-primary-600 focus:ring-focus-ring not-checked:appearance-none not-checked:rounded not-checked:border not-checked:border-edge-strong not-checked:bg-surface-muted cursor-pointer"
           {...props}
         />
       </div>

@@ -150,6 +150,17 @@
 }
 
 /* ── Custom utilities ──────────────────────────────────────────────────────── */
+@keyframes grid-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -157,5 +168,9 @@
 
   .text-button-on-dark {
     color: var(--color-button-on-dark);
+  }
+
+  .animate-grid-in {
+    animation: grid-in 180ms ease-out both;
   }
 }

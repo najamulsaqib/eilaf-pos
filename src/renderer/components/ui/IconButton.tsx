@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spinner } from './Button';
 
 interface IconButtonProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -9,6 +10,7 @@ interface IconButtonProps {
   className?: string;
   variant?: 'default' | 'subtle' | 'danger';
   size?: 'sm' | 'md' | 'lg';
+  busy?: boolean;
 }
 
 const sizeClasses = {
@@ -41,6 +43,7 @@ export default function IconButton({
   className = '',
   variant = 'default',
   size = 'md',
+  busy = false,
 }: IconButtonProps) {
   const Icon = icon;
 
@@ -63,7 +66,11 @@ export default function IconButton({
         ${className}
       `}
     >
-      <Icon className={iconSizeClasses[size]} />
+      {busy ? (
+        <Spinner className={iconSizeClasses[size]} />
+      ) : (
+        <Icon className={iconSizeClasses[size]} />
+      )}
     </button>
   );
 }

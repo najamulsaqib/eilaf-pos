@@ -294,7 +294,7 @@ export default function Dashboard() {
                 onClick={() => setActiveCategory(cat)}
                 className={`shrink-0 px-3.5 py-1 text-xs font-semibold rounded-full transition-all cursor-pointer ${
                   activeCategory === cat
-                    ? 'bg-primary-600 text-white shadow-sm shadow-primary-200'
+                    ? 'bg-primary-600 text-white shadow-sm shadow-primary-200 dark:shadow-primary-900/50'
                     : 'bg-surface-muted text-ink-faint hover:bg-edge hover:text-ink-dim'
                 }`}
               >

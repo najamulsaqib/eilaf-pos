@@ -13,7 +13,6 @@ on:
           - bugfix
           - patch
           - minor
-          - major
 
 jobs:
   bump:

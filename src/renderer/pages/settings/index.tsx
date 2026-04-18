@@ -10,6 +10,9 @@ import {
   SunIcon,
   MoonIcon,
   ComputerDesktopIcon,
+  ArrowPathIcon,
+  BeakerIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import AppLayout from '@components/layout/AppLayout';
 import Button from '@components/ui/Button';
@@ -20,8 +23,9 @@ import { useAuth } from '@contexts/AuthContext';
 import { useTheme, type TThemeMode } from '@contexts/ThemeContext';
 import { useSettings } from '@hooks/useSettings';
 import { LOCALES, Locale } from '@i18n/index';
+import { updaterApi } from '@services/db';
 
-type Tab = 'business' | 'receipt' | 'app' | 'account';
+type Tab = 'business' | 'receipt' | 'app' | 'account' | 'updates';
 
 // ── Sidebar nav item ──────────────────────────────────────────────────────────
 
@@ -135,6 +139,53 @@ export default function Settings() {
   const [savingReceipt, setSavingReceipt] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
+  const [appVersion, setAppVersion] = useState('');
+  const [updateChannel, setUpdateChannel] = useState<'latest' | 'beta'>(
+    'latest',
+  );
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+
+  useEffect(() => {
+    updaterApi
+      .getVersion()
+      .then(setAppVersion)
+      .catch(() => {});
+    updaterApi
+      .getChannel()
+      .then(setUpdateChannel)
+      .catch(() => {});
+  }, []);
+
+  const handleSetChannel = async (channel: 'latest' | 'beta') => {
+    setUpdateChannel(channel);
+    try {
+      await updaterApi.setChannel(channel);
+      toast.success(t('settings.updates.channelSaved'));
+    } catch {
+      toast.error(t('common.error'));
+    }
+  };
+
+  const handleCheckForUpdates = async () => {
+    setCheckingUpdates(true);
+    try {
+      const res = await updaterApi.checkForUpdates();
+      if (res.error) {
+        toast.error(t('settings.updates.checkFailed'));
+      } else if (res.updateAvailable && res.version) {
+        toast.success(
+          t('settings.updates.updateAvailable', { version: res.version }),
+        );
+      } else {
+        toast.success(t('settings.updates.upToDate'));
+      }
+    } catch {
+      toast.error(t('settings.updates.checkFailed'));
+    } finally {
+      setCheckingUpdates(false);
+    }
+  };
+
   useEffect(() => {
     if (!loading) {
       setBusiness({
@@ -247,6 +298,16 @@ export default function Settings() {
       activeBg: 'bg-rose-50 dark:bg-rose-900/20',
       activeBorder: 'border-rose-200 dark:border-rose-800/60',
       iconBg: 'bg-rose-50 dark:bg-rose-900/20',
+    },
+    {
+      id: 'updates',
+      icon: ArrowPathIcon,
+      label: t('settings.updates.title'),
+      desc: t('settings.updates.navDesc'),
+      activeText: 'text-amber-600 dark:text-amber-400',
+      activeBg: 'bg-amber-50 dark:bg-amber-900/20',
+      activeBorder: 'border-amber-200 dark:border-amber-800/60',
+      iconBg: 'bg-amber-50 dark:bg-amber-900/20',
     },
   ];
 
@@ -522,6 +583,96 @@ export default function Settings() {
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Updates ── */}
+          {activeTab === 'updates' && (
+            <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
+              <PanelHeader
+                icon={ArrowPathIcon}
+                iconBg="bg-amber-50 dark:bg-amber-900/30"
+                iconText="text-amber-600 dark:text-amber-400"
+                title={t('settings.updates.title')}
+                desc={t('settings.updates.desc')}
+              />
+              <div className="px-8 py-6 space-y-7">
+                {/* Current version */}
+                <div className="flex items-center justify-between rounded-xl border border-edge bg-surface-raised/40 px-4 py-3.5">
+                  <div>
+                    <p className="text-sm font-medium text-ink">
+                      {t('settings.updates.version')}
+                    </p>
+                    <p className="text-xs text-ink-faint mt-0.5 font-mono">
+                      v{appVersion || '—'}
+                    </p>
+                  </div>
+                  <CheckCircleIcon className="w-5 h-5 text-emerald-500" />
+                </div>
+
+                {/* Channel picker */}
+                <div>
+                  <p className="text-sm font-medium text-ink-dim mb-1">
+                    {t('settings.updates.channel')}
+                  </p>
+                  <p className="text-xs text-ink-faint mb-3">
+                    {t('settings.updates.channelHint')}
+                  </p>
+                  <div className="flex gap-3">
+                    {[
+                      {
+                        id: 'latest' as const,
+                        label: t('settings.updates.stable'),
+                        icon: CheckCircleIcon,
+                      },
+                      {
+                        id: 'beta' as const,
+                        label: t('settings.updates.beta'),
+                        icon: BeakerIcon,
+                      },
+                    ].map(({ id, label, icon: Icon }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => handleSetChannel(id)}
+                        className={`flex-1 rounded-xl border-2 p-3 transition-all cursor-pointer flex flex-col items-center gap-2 ${
+                          updateChannel === id
+                            ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                            : 'border-edge hover:border-edge-strong'
+                        }`}
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            updateChannel === id
+                              ? 'bg-amber-100 dark:bg-amber-800/40'
+                              : 'bg-surface-muted'
+                          }`}
+                        >
+                          <Icon
+                            className={`w-4 h-4 ${updateChannel === id ? 'text-amber-600 dark:text-amber-400' : 'text-ink-ghost'}`}
+                          />
+                        </div>
+                        <p
+                          className={`text-xs font-semibold ${updateChannel === id ? 'text-amber-600 dark:text-amber-400' : 'text-ink-faint'}`}
+                        >
+                          {label}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-8 py-4 bg-surface-muted/70 border-t border-edge-muted flex justify-end">
+                <Button
+                  icon={ArrowPathIcon}
+                  busy={checkingUpdates}
+                  onClick={handleCheckForUpdates}
+                >
+                  {t('settings.updates.checkForUpdates')}
+                </Button>
               </div>
             </div>
           )}

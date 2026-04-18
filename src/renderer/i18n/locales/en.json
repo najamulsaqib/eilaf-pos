@@ -71,6 +71,22 @@
       "navDesc": "Sign out, session",
       "signOut": "Sign Out",
       "signOutDesc": "You will need to sign in again to use the app"
+    },
+    "updates": {
+      "title": "Updates",
+      "desc": "Manage the app update channel and check for new versions",
+      "navDesc": "Version, channel",
+      "version": "Current Version",
+      "channel": "Update Channel",
+      "channelHint": "Stable receives tested releases. Beta gets new features earlier but may have bugs.",
+      "stable": "Stable",
+      "beta": "Beta",
+      "checkForUpdates": "Check for Updates",
+      "checking": "Checking...",
+      "upToDate": "You're up to date!",
+      "updateAvailable": "Update available: v{{version}}",
+      "checkFailed": "Could not check for updates.",
+      "channelSaved": "Update channel saved."
     }
   },
   "common": {

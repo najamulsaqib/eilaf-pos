@@ -68,7 +68,11 @@ function SlimSidebar() {
     <div className="flex flex-col items-center w-18 shrink-0 bg-surface my-3 ms-3 rounded-2xl shadow-lg shadow-slate-200/60 dark:shadow-slate-900/60 py-3 gap-3">
       {/* Logo */}
       <div className="flex items-center justify-center w-11 h-11 mb-1">
-        <img src={logo} alt="Eilaf POS" className="h-8 w-8 object-contain" />
+        <img
+          src={logo}
+          alt={t('auth.appName')}
+          className="h-8 w-8 object-contain"
+        />
       </div>
 
       {/* Main nav group */}
@@ -165,10 +169,12 @@ function FullSidebar() {
         <div className="flex items-center gap-2.5">
           <img
             src={logo}
-            alt="Eilaf POS"
+            alt={t('auth.appName')}
             className="h-7 w-auto object-contain shrink-0"
           />
-          <span className="text-sm font-bold text-ink">Eilaf POS</span>
+          <span className="text-sm font-bold text-ink">
+            {t('auth.appName')}
+          </span>
         </div>
       </div>
 

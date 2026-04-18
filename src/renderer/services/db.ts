@@ -58,6 +58,20 @@ export const reportsApi = {
     window.electron.reports.summary(input) as Promise<IReportSummary>,
 };
 
+export const updaterApi = {
+  getVersion: () => window.electron.updater.getVersion() as Promise<string>,
+  getChannel: () =>
+    window.electron.updater.getChannel() as Promise<'latest' | 'beta'>,
+  setChannel: (channel: 'latest' | 'beta') =>
+    window.electron.updater.setChannel(channel) as Promise<{ ok: boolean }>,
+  checkForUpdates: () =>
+    window.electron.updater.checkForUpdates() as Promise<{
+      updateAvailable: boolean;
+      version?: string;
+      error?: string;
+    }>,
+};
+
 export const settingsApi = {
   getAll: () =>
     window.electron.settings.getAll() as Promise<Partial<ISettings>>,

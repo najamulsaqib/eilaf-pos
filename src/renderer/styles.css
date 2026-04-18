@@ -1,24 +1,115 @@
 @import 'tailwindcss';
 
+/* Class-based dark mode — toggle `.dark` on <html> to switch themes.
+   To add a new theme, define a new class (e.g. `.sepia`) and override
+   the --color-* variables below in @layer base. */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
-  --color-primary-950: #082f49;
+  /* ── Brand / primary palette ─────────────────────────────────────────────── */
+  --color-primary-50: #fff1f0;
+  --color-primary-100: #ffe0de;
+  --color-primary-200: #ffc5c1;
+  --color-primary-300: #ff9a94;
+  --color-primary-400: #ff6258;
+  --color-primary-500: #e53935;
+  --color-primary-600: #d32f2f;
+  --color-primary-700: #b71c1c;
+  --color-primary-800: #8e1414;
+  --color-primary-900: #5f0d0d;
+  --color-primary-950: #3b0707;
+
+  /* ── Semantic surface tokens (light mode defaults) ───────────────────────── */
+  --color-surface: #ffffff; /* bg-surface     — panels, cards, modals     */
+  --color-surface-raised: #f8fafc; /* bg-surface-raised — page bg, hover targets */
+  --color-surface-muted: #f1f5f9; /* bg-surface-muted  — inputs, wells, footer  */
+
+  /* ── Semantic border tokens ──────────────────────────────────────────────── */
+  --color-edge: #e2e8f0; /* border-edge        — card / divider borders */
+  --color-edge-strong: #cbd5e1; /* border-edge-strong — input borders          */
+  --color-edge-muted: #f1f5f9; /* border-edge-muted  — subtle borders         */
+
+  /* ── Semantic text tokens ────────────────────────────────────────────────── */
+  --color-ink: #0f172a; /* text-ink       — primary text               */
+  --color-ink-dim: #475569; /* text-ink-dim   — secondary text / labels    */
+  --color-ink-faint: #64748b; /* text-ink-faint — muted text / descriptions  */
+  --color-ink-ghost: #94a3b8; /* text-ink-ghost — placeholder / disabled     */
+  --color-focus-ring: #e53935; /* ring-focus-ring — keyboard focus rings      */
+
+  /* ── StatCard accent tokens (light defaults) ─────────────────────────────── */
+  --color-stat-green-border: #86efac; /* green-300  */
+  --color-stat-green-icon-bg: #dcfce7; /* green-100  */
+  --color-stat-green-icon: #22c55e; /* green-500  */
+
+  --color-stat-orange-border: #fed7aa; /* orange-200 */
+  --color-stat-orange-icon-bg: #fff7ed; /* orange-50  */
+  --color-stat-orange-icon: #fb923c; /* orange-400 */
+
+  --color-stat-yellow-border: #fde68a; /* amber-200  */
+  --color-stat-yellow-icon-bg: #fffbeb; /* amber-50   */
+  --color-stat-yellow-icon: #f59e0b; /* amber-500  */
+
+  --color-stat-red-border: #fca5a5; /* red-300    */
+  --color-stat-red-icon-bg: #fef2f2; /* red-50     */
+  --color-stat-red-icon: #f87171; /* red-400    */
+
+  --color-stat-theme-border: #ff9a94; /* primary-300 */
+  --color-stat-theme-icon-bg: #fff1f0; /* primary-50  */
+  --color-stat-theme-icon: #e53935; /* primary-500 */
+
+  --color-stat-neon-border: #d8b4fe; /* purple-300 */
+  --color-stat-neon-icon-bg: #faf5ff; /* purple-50  */
+  --color-stat-neon-icon: #a855f7; /* purple-500 */
 }
 
-/* Custom scrollbar styles */
+/* ── Dark mode overrides ───────────────────────────────────────────────────── *
+   Override only the semantic tokens here. Brand colors (primary-*) stay fixed.
+   To add a new theme, copy this block, change `.dark` to your theme class,
+   and adjust the values. */
 @layer base {
+  .dark {
+    --color-surface: #0f172a;
+    --color-surface-raised: #1e293b;
+    --color-surface-muted: #1e293b;
+    --color-edge: #334155;
+    --color-edge-strong: #475569;
+    --color-edge-muted: #1e293b;
+    --color-ink: #f1f5f9;
+    --color-ink-dim: #94a3b8;
+    --color-ink-faint: #94a3b8;
+    --color-ink-ghost: #64748b;
+    --color-focus-ring: #ff6258; /* primary-400 — slightly lighter in dark */
+
+    /* StatCard accents — muted for dark mode */
+    --color-stat-green-border: #14532d; /* green-900  */
+    --color-stat-green-icon-bg: #052e1680; /* green-900/30 approx */
+    --color-stat-green-icon: #4ade80; /* green-400  */
+
+    --color-stat-orange-border: #431407; /* orange-900 */
+    --color-stat-orange-icon-bg: #43140780; /* orange-900/30 */
+    --color-stat-orange-icon: #fb923c; /* orange-300 equiv */
+
+    --color-stat-yellow-border: #451a03; /* amber-900  */
+    --color-stat-yellow-icon-bg: #451a0380; /* amber-900/30 */
+    --color-stat-yellow-icon: #fbbf24; /* amber-400  */
+
+    --color-stat-red-border: #7f1d1d; /* red-900    */
+    --color-stat-red-icon-bg: #7f1d1d80; /* red-900/30 */
+    --color-stat-red-icon: #f87171; /* red-300 equiv */
+
+    --color-stat-theme-border: #5f0d0d; /* primary-900 */
+    --color-stat-theme-icon-bg: #5f0d0d80; /* primary-900/30 */
+    --color-stat-theme-icon: #ff6258; /* primary-400 */
+
+    --color-stat-neon-border: #3b0764; /* purple-900 */
+    --color-stat-neon-icon-bg: #3b076480; /* purple-900/30 */
+    --color-stat-neon-icon: #c084fc; /* purple-400 */
+  }
+
+  /* ── Scrollbar ─────────────────────────────────────────────────────────── */
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgb(203 213 225) transparent;
+    scrollbar-color: var(--color-edge) transparent;
   }
 
   *::-webkit-scrollbar {
@@ -31,31 +122,32 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background-color: rgb(203 213 225);
+    background-color: var(--color-edge);
     border-radius: 4px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(148 163 184);
+    background-color: var(--color-ink-ghost);
   }
 }
 
-/* Urdu font */
+/* ── Urdu font ─────────────────────────────────────────────────────────────── */
 @font-face {
   font-family: 'Jameel Noori Nastaleeq Kasheeda';
-  src: url('../../assets/fonts/jameel-noori-nastaleeq-kasheeda.ttf') format('truetype');
+  src: url('../../assets/fonts/jameel-noori-nastaleeq-kasheeda.ttf')
+    format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
-/* Urdu font — applied automatically when LocaleProvider sets <html lang="ur"> */
+/* Applied automatically when LocaleProvider sets <html lang="ur"> */
 :root:lang(ur) {
   font-family: 'Jameel Noori Nastaleeq Kasheeda', serif;
   font-size: 120%;
   line-height: 2.4;
 }
 
-/* Custom utilities */
+/* ── Custom utilities ──────────────────────────────────────────────────────── */
 @layer utilities {
   .text-balance {
     text-wrap: balance;

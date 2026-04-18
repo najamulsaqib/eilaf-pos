@@ -139,19 +139,17 @@ export default function LoginPage() {
   } as const;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-surface-raised flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+        <div className="bg-surface rounded-2xl shadow-sm border border-edge p-8">
           <div className="flex flex-col items-center mb-8">
             <img
               src={logo}
               alt={t('auth.appName')}
               className="w-40 h-40 object-cover"
             />
-            <h1 className="text-2xl font-bold text-slate-900">
-              {t('auth.appName')}
-            </h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-ink">{t('auth.appName')}</h1>
+            <p className="mt-1 text-sm text-ink-faint">
               {t(subtitleKey[view])}
             </p>
           </div>
@@ -184,7 +182,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                      className="text-ink-ghost hover:text-ink-dim transition-colors cursor-pointer"
                       aria-label={
                         showPassword
                           ? t('auth.login.hidePassword')
@@ -207,7 +205,7 @@ export default function LoginPage() {
                       setForgotEmail(email);
                       setView('forgot');
                     }}
-                    className="text-xs text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+                    className="text-xs text-primary-600 hover:text-primary-700 transition-colors cursor-pointer"
                   >
                     {t('auth.login.forgotPassword')}
                   </button>
@@ -215,14 +213,14 @@ export default function LoginPage() {
               </div>
 
               {info && (
-                <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3">
-                  <p className="text-sm text-green-700">{info}</p>
+                <div className="rounded-lg bg-stat-green-icon-bg border border-stat-green-border px-4 py-3">
+                  <p className="text-sm text-stat-green-icon">{info}</p>
                 </div>
               )}
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="rounded-lg bg-stat-red-icon-bg border border-stat-red-border px-4 py-3">
+                  <p className="text-sm text-stat-red-icon">{error}</p>
                 </div>
               )}
 
@@ -235,7 +233,7 @@ export default function LoginPage() {
           {/* ── Forgot — enter email ── */}
           {view === 'forgot' && (
             <form onSubmit={handleSendOtp} className="space-y-5">
-              <p className="text-sm text-slate-500">{t('auth.forgot.hint')}</p>
+              <p className="text-sm text-ink-faint">{t('auth.forgot.hint')}</p>
 
               <TextField
                 id="forgot-email"
@@ -249,8 +247,8 @@ export default function LoginPage() {
               />
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="rounded-lg bg-stat-red-icon-bg border border-stat-red-border px-4 py-3">
+                  <p className="text-sm text-stat-red-icon">{error}</p>
                 </div>
               )}
 
@@ -261,7 +259,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => goBack('login')}
-                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mx-auto cursor-pointer"
+                className="flex items-center gap-1.5 text-sm text-ink-faint hover:text-ink transition-colors mx-auto cursor-pointer"
               >
                 <ArrowLeftIcon className="h-3.5 w-3.5" />
                 {t('auth.forgot.back')}
@@ -273,8 +271,8 @@ export default function LoginPage() {
           {view === 'otp' && (
             <form onSubmit={handleVerifyOtp} className="space-y-5">
               {info && (
-                <div className="rounded-lg bg-blue-50 border border-blue-200 px-4 py-3">
-                  <p className="text-sm text-blue-700">{info}</p>
+                <div className="rounded-lg bg-primary-50 border border-primary-200 px-4 py-3">
+                  <p className="text-sm text-primary-700">{info}</p>
                 </div>
               )}
 
@@ -293,8 +291,8 @@ export default function LoginPage() {
               />
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="rounded-lg bg-stat-red-icon-bg border border-stat-red-border px-4 py-3">
+                  <p className="text-sm text-stat-red-icon">{error}</p>
                 </div>
               )}
 
@@ -306,7 +304,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => goBack('forgot')}
-                  className="flex items-center gap-1.5 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-ink-faint hover:text-ink transition-colors cursor-pointer"
                 >
                   <ArrowLeftIcon className="h-3.5 w-3.5" />
                   {t('auth.otp.back')}
@@ -315,7 +313,7 @@ export default function LoginPage() {
                   type="button"
                   disabled={loading}
                   onClick={handleResendOtp}
-                  className="text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 cursor-pointer"
+                  className="text-primary-600 hover:text-primary-700 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {t('auth.otp.resend')}
                 </button>
@@ -339,7 +337,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowNewPassword((v) => !v)}
-                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                    className="text-ink-ghost hover:text-ink-dim transition-colors"
                     aria-label={
                       showNewPassword
                         ? t('auth.login.hidePassword')
@@ -367,8 +365,8 @@ export default function LoginPage() {
               />
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="rounded-lg bg-stat-red-icon-bg border border-stat-red-border px-4 py-3">
+                  <p className="text-sm text-stat-red-icon">{error}</p>
                 </div>
               )}
 
@@ -379,7 +377,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-slate-400">
+        <p className="mt-6 text-center text-xs text-ink-ghost">
           {t('auth.footer', { year: new Date().getFullYear() })}
         </p>
       </div>

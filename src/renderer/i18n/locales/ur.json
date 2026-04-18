@@ -44,7 +44,14 @@
     "app": {
       "title": "ایپ کی ترجیحات",
       "desc": "ایپ کو اپنے کام کے مطابق ترتیب دیں",
-      "navDesc": "زبان، سائیڈ بار"
+      "navDesc": "زبان، تھیم، سائیڈ بار"
+    },
+    "theme": {
+      "label": "تھیم",
+      "hint": "ایپلیکیشن کے لیے رنگ کی تھیم منتخب کریں۔ تبدیلی فوری اثر کرتی ہے۔",
+      "light": "روشن",
+      "dark": "تاریک",
+      "system": "سسٹم"
     },
     "sidebar": {
       "label": "سائیڈ بار کا انداز",
@@ -86,7 +93,7 @@
     "allCategories": "سب",
     "customItem": "خصوصی آئٹم",
     "customItemName": "آئٹم کا نام",
-    "customItemNamePlaceholder": "مثلاً مرمت کی خدمت",
+    "customItemNamePlaceholder": "مثلاً آئٹم کا نام",
     "customItemPrice": "قیمت (روپے)",
     "addToBill": "بل میں شامل کریں",
     "currentBill": "موجودہ بل",

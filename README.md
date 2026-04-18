@@ -61,6 +61,21 @@ Supabase must not be used for POS business CRUD.
   - [.github/copilot/skills/tailwindcss.md](.github/copilot/skills/tailwindcss.md)
   - [.github/copilot/skills/i18n.md](.github/copilot/skills/i18n.md)
 
+## Theming
+
+eilaf-pos uses **CSS custom property–based semantic tokens** (Tailwind 4). Theme switching toggles a class on `<html>` — no `dark:` variants appear in component files.
+
+| File | Role |
+|------|------|
+| `src/renderer/styles.css` | Defines `--color-*` variables in `@theme`; overrides them per-theme in `@layer base` |
+| `src/renderer/contexts/ThemeContext.tsx` | Manages theme state in `localStorage`, applies `.dark` to `<html>` |
+
+**To add a new theme** (e.g. `.sepia`): add one CSS block in `styles.css` overriding the `--color-*` variables, then add the mode to `TThemeMode` and the settings picker. No component changes needed.
+
+**Semantic token groups:** `surface` / `surface-raised` / `surface-muted` · `edge` / `edge-strong` / `edge-muted` · `ink` / `ink-dim` / `ink-faint` / `ink-ghost` · `focus-ring` · `stat-*` accent tokens per StatCard color variant.
+
+Full token reference: [`.github/copilot/skills/tailwindcss.md`](.github/copilot/skills/tailwindcss.md)
+
 ## Internationalization (i18n)
 
 eilaf-pos supports multiple languages via **i18next** + **react-i18next**.

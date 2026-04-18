@@ -7,6 +7,9 @@ import {
   AdjustmentsHorizontalIcon,
   UserCircleIcon,
   ArrowRightStartOnRectangleIcon,
+  SunIcon,
+  MoonIcon,
+  ComputerDesktopIcon,
 } from '@heroicons/react/24/outline';
 import AppLayout from '@components/layout/AppLayout';
 import Button from '@components/ui/Button';
@@ -14,6 +17,7 @@ import TextField from '@components/ui/TextField';
 import SelectField from '@components/ui/SelectField';
 import { useLocale } from '@contexts/LocaleContext';
 import { useAuth } from '@contexts/AuthContext';
+import { useTheme, type TThemeMode } from '@contexts/ThemeContext';
 import { useSettings } from '@hooks/useSettings';
 import { LOCALES, Locale } from '@i18n/index';
 
@@ -51,24 +55,24 @@ function NavItem({
         ${
           active
             ? `${item.activeBg} ${item.activeBorder} border`
-            : 'hover:bg-slate-50 border border-transparent'
+            : 'hover:bg-surface-raised border border-transparent'
         }
       `}
     >
       <div
-        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? item.iconBg : 'bg-slate-100'}`}
+        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? item.iconBg : 'bg-surface-muted'}`}
       >
         <Icon
-          className={`w-4 h-4 ${active ? item.activeText : 'text-slate-400'}`}
+          className={`w-4 h-4 ${active ? item.activeText : 'text-ink-ghost'}`}
         />
       </div>
       <div className="min-w-0">
         <p
-          className={`text-sm font-medium leading-tight ${active ? 'text-slate-900' : 'text-slate-600'}`}
+          className={`text-sm font-medium leading-tight ${active ? 'text-ink' : 'text-ink-dim'}`}
         >
           {item.label}
         </p>
-        <p className="text-xs text-slate-400 truncate mt-0.5">{item.desc}</p>
+        <p className="text-xs text-ink-ghost truncate mt-0.5">{item.desc}</p>
       </div>
     </button>
   );
@@ -90,15 +94,15 @@ function PanelHeader({
   desc: string;
 }) {
   return (
-    <div className="px-8 py-6 border-b border-slate-100 flex items-center gap-4">
+    <div className="px-8 py-6 border-b border-edge-muted flex items-center gap-4">
       <div
         className={`w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}
       >
         <Icon className={`w-5 h-5 ${iconText}`} />
       </div>
       <div>
-        <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-        <p className="text-sm text-slate-500 mt-0.5">{desc}</p>
+        <h2 className="text-base font-semibold text-ink">{title}</h2>
+        <p className="text-sm text-ink-faint mt-0.5">{desc}</p>
       </div>
     </div>
   );
@@ -109,6 +113,7 @@ function PanelHeader({
 export default function Settings() {
   const { t } = useTranslation();
   const { locale, setLocale } = useLocale();
+  const { theme, setTheme } = useTheme();
   const { signOut } = useAuth();
   const { settings, loading, save } = useSettings();
   const [activeTab, setActiveTab] = useState<Tab>('business');
@@ -188,46 +193,52 @@ export default function Settings() {
 
   const localeOptions = LOCALES.map((l) => ({ value: l.code, label: l.label }));
 
+  const themeOptions: { id: TThemeMode; icon: ComponentType<{ className?: string }>; labelKey: string }[] = [
+    { id: 'light', icon: SunIcon, labelKey: 'settings.theme.light' },
+    { id: 'dark', icon: MoonIcon, labelKey: 'settings.theme.dark' },
+    { id: 'system', icon: ComputerDesktopIcon, labelKey: 'settings.theme.system' },
+  ];
+
   const navItems: NavItemConfig[] = [
     {
       id: 'business',
       icon: BuildingStorefrontIcon,
       label: t('settings.business.title'),
       desc: t('settings.business.navDesc'),
-      activeText: 'text-blue-600',
-      activeBg: 'bg-blue-50',
-      activeBorder: 'border-blue-200',
-      iconBg: 'bg-blue-50',
+      activeText: 'text-primary-600 dark:text-primary-400',
+      activeBg: 'bg-primary-50 dark:bg-primary-900/20',
+      activeBorder: 'border-primary-200 dark:border-primary-800/60',
+      iconBg: 'bg-primary-50 dark:bg-primary-900/20',
     },
     {
       id: 'receipt',
       icon: DocumentTextIcon,
       label: t('settings.receipt.title'),
       desc: t('settings.receipt.navDesc'),
-      activeText: 'text-violet-600',
-      activeBg: 'bg-violet-50',
-      activeBorder: 'border-violet-200',
-      iconBg: 'bg-violet-50',
+      activeText: 'text-violet-600 dark:text-violet-400',
+      activeBg: 'bg-violet-50 dark:bg-violet-900/20',
+      activeBorder: 'border-violet-200 dark:border-violet-800/60',
+      iconBg: 'bg-violet-50 dark:bg-violet-900/20',
     },
     {
       id: 'app',
       icon: AdjustmentsHorizontalIcon,
       label: t('settings.app.title'),
       desc: t('settings.app.navDesc'),
-      activeText: 'text-emerald-600',
-      activeBg: 'bg-emerald-50',
-      activeBorder: 'border-emerald-200',
-      iconBg: 'bg-emerald-50',
+      activeText: 'text-emerald-600 dark:text-emerald-400',
+      activeBg: 'bg-emerald-50 dark:bg-emerald-900/20',
+      activeBorder: 'border-emerald-200 dark:border-emerald-800/60',
+      iconBg: 'bg-emerald-50 dark:bg-emerald-900/20',
     },
     {
       id: 'account',
       icon: UserCircleIcon,
       label: t('settings.account.title'),
       desc: t('settings.account.navDesc'),
-      activeText: 'text-rose-600',
-      activeBg: 'bg-rose-50',
-      activeBorder: 'border-rose-200',
-      iconBg: 'bg-rose-50',
+      activeText: 'text-rose-600 dark:text-rose-400',
+      activeBg: 'bg-rose-50 dark:bg-rose-900/20',
+      activeBorder: 'border-rose-200 dark:border-rose-800/60',
+      iconBg: 'bg-rose-50 dark:bg-rose-900/20',
     },
   ];
 
@@ -236,8 +247,8 @@ export default function Settings() {
       <div className="flex gap-5 items-start">
         {/* ── Left sidebar nav ── */}
         <div className="w-52 shrink-0 sticky top-0">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest px-3 pt-2 pb-2">
+          <div className="bg-surface rounded-2xl border border-edge shadow-sm p-2">
+            <p className="text-[10px] font-semibold text-ink-ghost uppercase tracking-widest px-3 pt-2 pb-2">
               {t('settings.title')}
             </p>
             <nav className="space-y-0.5">
@@ -257,11 +268,11 @@ export default function Settings() {
         <div className="flex-1 min-w-0">
           {/* ── Business Profile ── */}
           {activeTab === 'business' && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
               <PanelHeader
                 icon={BuildingStorefrontIcon}
-                iconBg="bg-blue-50"
-                iconText="text-blue-600"
+                iconBg="bg-primary-50 dark:bg-primary-900/30"
+                iconText="text-primary-600 dark:text-primary-400"
                 title={t('settings.business.title')}
                 desc={t('settings.business.desc')}
               />
@@ -299,7 +310,7 @@ export default function Settings() {
                   />
                 </div>
               </div>
-              <div className="px-8 py-4 bg-slate-50/70 border-t border-slate-100 flex justify-end">
+              <div className="px-8 py-4 bg-surface-muted/70 border-t border-edge-muted flex justify-end">
                 <Button busy={savingBusiness} onClick={handleSaveBusiness}>
                   {t('settings.business.save')}
                 </Button>
@@ -309,21 +320,21 @@ export default function Settings() {
 
           {/* ── Receipt ── */}
           {activeTab === 'receipt' && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
               <PanelHeader
                 icon={DocumentTextIcon}
-                iconBg="bg-violet-50"
-                iconText="text-violet-600"
+                iconBg="bg-violet-50 dark:bg-violet-900/30"
+                iconText="text-violet-600 dark:text-violet-400"
                 title={t('settings.receipt.title')}
                 desc={t('settings.receipt.desc')}
               />
               <div className="px-8 py-6 space-y-5">
-                <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/40 px-4 py-3.5 gap-6">
+                <div className="flex items-center justify-between rounded-xl border border-edge bg-surface-raised/40 px-4 py-3.5 gap-6">
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-800">
+                    <p className="text-sm font-medium text-ink">
                       {t('settings.receipt.showBusiness')}
                     </p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-ink-faint mt-0.5">
                       {t('settings.receipt.showBusinessHint')}
                     </p>
                   </div>
@@ -341,7 +352,7 @@ export default function Settings() {
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 ${
                       receipt.receipt_show_business === '1'
                         ? 'bg-violet-600'
-                        : 'bg-slate-200'
+                        : 'bg-edge'
                     }`}
                   >
                     <span
@@ -367,7 +378,7 @@ export default function Settings() {
                   }
                 />
               </div>
-              <div className="px-8 py-4 bg-slate-50/70 border-t border-slate-100 flex justify-end">
+              <div className="px-8 py-4 bg-surface-muted/70 border-t border-edge-muted flex justify-end">
                 <Button busy={savingReceipt} onClick={handleSaveReceipt}>
                   {t('settings.receipt.save')}
                 </Button>
@@ -377,11 +388,11 @@ export default function Settings() {
 
           {/* ── App Preferences ── */}
           {activeTab === 'app' && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
               <PanelHeader
                 icon={AdjustmentsHorizontalIcon}
-                iconBg="bg-emerald-50"
-                iconText="text-emerald-600"
+                iconBg="bg-emerald-50 dark:bg-emerald-900/30"
+                iconText="text-emerald-600 dark:text-emerald-400"
                 title={t('settings.app.title')}
                 desc={t('settings.app.desc')}
               />
@@ -398,12 +409,53 @@ export default function Settings() {
                   />
                 </div>
 
+                {/* Theme */}
+                <div>
+                  <p className="text-sm font-medium text-ink-dim mb-1">
+                    {t('settings.theme.label')}
+                  </p>
+                  <p className="text-xs text-ink-faint mb-3">
+                    {t('settings.theme.hint')}
+                  </p>
+                  <div className="flex gap-3">
+                    {themeOptions.map(({ id, icon: Icon, labelKey }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setTheme(id)}
+                        className={`flex-1 rounded-xl border-2 p-3 transition-all cursor-pointer flex flex-col items-center gap-2 ${
+                          theme === id
+                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                            : 'border-edge hover:border-edge-strong'
+                        }`}
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            theme === id
+                              ? 'bg-primary-100 dark:bg-primary-800/40'
+                              : 'bg-surface-muted'
+                          }`}
+                        >
+                          <Icon
+                            className={`w-4 h-4 ${theme === id ? 'text-primary-600 dark:text-primary-400' : 'text-ink-ghost'}`}
+                          />
+                        </div>
+                        <p
+                          className={`text-xs font-semibold ${theme === id ? 'text-primary-600 dark:text-primary-400' : 'text-ink-faint'}`}
+                        >
+                          {t(labelKey)}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Sidebar style */}
                 <div>
-                  <p className="text-sm font-medium text-slate-700 mb-1">
+                  <p className="text-sm font-medium text-ink-dim mb-1">
                     {t('settings.sidebar.label')}
                   </p>
-                  <p className="text-xs text-slate-500 mb-3">
+                  <p className="text-xs text-ink-faint mb-3">
                     {t('settings.sidebar.hint')}
                   </p>
                   <div className="flex gap-4">
@@ -413,22 +465,22 @@ export default function Settings() {
                       onClick={() => save({ sidebar_style: 'full' })}
                       className={`flex-1 rounded-xl border-2 p-3 transition-all cursor-pointer ${
                         settings.sidebar_style !== 'slim'
-                          ? 'border-blue-500 bg-blue-50/50'
-                          : 'border-slate-200 hover:border-slate-300'
+                          ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/20'
+                          : 'border-edge hover:border-edge-strong'
                       }`}
                     >
                       {/* Preview */}
                       <div className="flex gap-1.5 mb-2.5 justify-center">
-                        <div className="w-10 h-16 rounded-md bg-white border border-slate-200 flex flex-col gap-1 p-1">
-                          <div className="w-full h-2 rounded bg-blue-500" />
-                          <div className="w-full h-1.5 rounded bg-slate-200" />
-                          <div className="w-full h-1.5 rounded bg-slate-200" />
-                          <div className="w-full h-1.5 rounded bg-slate-200" />
+                        <div className="w-10 h-16 rounded-md bg-surface border border-edge flex flex-col gap-1 p-1">
+                          <div className="w-full h-2 rounded bg-primary-500" />
+                          <div className="w-full h-1.5 rounded bg-edge" />
+                          <div className="w-full h-1.5 rounded bg-edge" />
+                          <div className="w-full h-1.5 rounded bg-edge" />
                         </div>
-                        <div className="flex-1 h-16 rounded-md bg-slate-100 border border-slate-200" />
+                        <div className="flex-1 h-16 rounded-md bg-surface-muted border border-edge" />
                       </div>
                       <p
-                        className={`text-xs font-semibold text-center ${settings.sidebar_style !== 'slim' ? 'text-blue-600' : 'text-slate-500'}`}
+                        className={`text-xs font-semibold text-center ${settings.sidebar_style !== 'slim' ? 'text-primary-600 dark:text-primary-400' : 'text-ink-faint'}`}
                       >
                         {t('settings.sidebar.full')}
                       </p>
@@ -440,22 +492,22 @@ export default function Settings() {
                       onClick={() => save({ sidebar_style: 'slim' })}
                       className={`flex-1 rounded-xl border-2 p-3 transition-all cursor-pointer ${
                         settings.sidebar_style === 'slim'
-                          ? 'border-blue-500 bg-blue-50/50'
-                          : 'border-slate-200 hover:border-slate-300'
+                          ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-900/20'
+                          : 'border-edge hover:border-edge-strong'
                       }`}
                     >
                       {/* Preview */}
                       <div className="flex gap-1.5 mb-2.5 justify-center">
-                        <div className="w-5 h-16 rounded-md bg-white border border-slate-200 flex flex-col items-center gap-1 py-1">
-                          <div className="w-3 h-3 rounded-full bg-blue-500" />
-                          <div className="w-3 h-1.5 rounded bg-slate-200" />
-                          <div className="w-3 h-1.5 rounded bg-slate-200" />
-                          <div className="w-3 h-1.5 rounded bg-slate-200" />
+                        <div className="w-5 h-16 rounded-md bg-surface border border-edge flex flex-col items-center gap-1 py-1">
+                          <div className="w-3 h-3 rounded-full bg-primary-500" />
+                          <div className="w-3 h-1.5 rounded bg-edge" />
+                          <div className="w-3 h-1.5 rounded bg-edge" />
+                          <div className="w-3 h-1.5 rounded bg-edge" />
                         </div>
-                        <div className="flex-1 h-16 rounded-md bg-slate-100 border border-slate-200" />
+                        <div className="flex-1 h-16 rounded-md bg-surface-muted border border-edge" />
                       </div>
                       <p
-                        className={`text-xs font-semibold text-center ${settings.sidebar_style === 'slim' ? 'text-blue-600' : 'text-slate-500'}`}
+                        className={`text-xs font-semibold text-center ${settings.sidebar_style === 'slim' ? 'text-primary-600 dark:text-primary-400' : 'text-ink-faint'}`}
                       >
                         {t('settings.sidebar.slim')}
                       </p>
@@ -468,21 +520,21 @@ export default function Settings() {
 
           {/* ── Account ── */}
           {activeTab === 'account' && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
               <PanelHeader
                 icon={UserCircleIcon}
-                iconBg="bg-rose-50"
-                iconText="text-rose-600"
+                iconBg="bg-rose-50 dark:bg-rose-900/30"
+                iconText="text-rose-600 dark:text-rose-400"
                 title={t('settings.account.title')}
                 desc={t('settings.account.desc')}
               />
               <div className="px-8 py-6">
-                <div className="flex items-center justify-between rounded-xl border border-rose-100 bg-rose-50/40 px-5 py-4">
+                <div className="flex items-center justify-between rounded-xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/40 dark:bg-rose-900/10 px-5 py-4">
                   <div>
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="text-sm font-semibold text-ink">
                       {t('settings.account.signOut')}
                     </p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-ink-faint mt-0.5">
                       {t('settings.account.signOutDesc')}
                     </p>
                   </div>

@@ -12,11 +12,11 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm',
+    'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm',
   secondary:
-    'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-blue-500',
+    'bg-surface text-ink-dim border border-edge-strong hover:bg-surface-raised focus:ring-primary-500',
   danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
-  ghost: 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-500',
+  ghost: 'bg-surface-muted text-ink-dim hover:bg-edge focus:ring-slate-500',
 };
 
 // Padding when button has no icon (text only)

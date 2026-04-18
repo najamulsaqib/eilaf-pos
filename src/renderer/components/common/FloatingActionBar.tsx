@@ -50,7 +50,7 @@ export default function FloatingActionBar({
             type="button"
             onClick={onPrint}
             disabled={printableCount === 0 || printing}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-primary-600 hover:bg-primary-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
           >
             <PrinterIcon className="w-4 h-4" />
             {t('products.printBarcodes')} ({printableCount})

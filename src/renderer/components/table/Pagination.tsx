@@ -26,16 +26,16 @@ export default function Pagination({
   const to = Math.min((page + 1) * pageSize, total);
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
+    <div className="flex items-center justify-between px-6 py-4 border-t border-edge bg-surface">
       {/* Left: summary and page size */}
       <div className="flex items-center gap-4 text-sm">
-        <span className="text-slate-600">
+        <span className="text-ink-dim">
           {total === 0
             ? 'No records'
             : `${from}–${to} of ${total.toLocaleString()}`}
         </span>
-        <div className="flex items-center gap-2 border-l border-slate-200 pl-4">
-          <span className="text-slate-600">Rows:</span>
+        <div className="flex items-center gap-2 border-l border-edge pl-4">
+          <span className="text-ink-dim">Rows:</span>
           <SelectField
             value={String(pageSize)}
             onChange={(value) => onPageSizeChange(Number(value))}
@@ -51,30 +51,27 @@ export default function Pagination({
 
       {/* Right: page navigation */}
       <div className="flex items-center gap-2">
-        {/* First page */}
         <button
           type="button"
           onClick={() => onPageChange(0)}
           disabled={page === 0}
-          className="text-slate-400 hover:text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="text-ink-ghost hover:text-ink-dim disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           aria-label="First page"
           title="First page"
         >
           <ChevronDoubleLeftIcon className="h-5 w-5" />
         </button>
 
-        {/* Previous text link */}
         <button
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={page === 0}
-          className="text-blue-600 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+          className="text-primary-600 hover:text-primary-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium text-sm"
           aria-label="Previous page"
         >
           Previous
         </button>
 
-        {/* Page number input */}
         <div className="flex items-center gap-1 mx-2">
           <input
             type="number"
@@ -92,30 +89,28 @@ export default function Pagination({
               MozAppearance: 'textfield',
               appearance: 'textfield',
             }}
-            className="w-16 h-7 border border-slate-300 rounded px-2 text-center text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0"
+            className="w-16 h-7 border border-edge-strong bg-surface rounded px-2 text-center text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0"
           />
-          <span className="text-sm text-slate-600 font-medium">
+          <span className="text-sm text-ink-dim font-medium">
             of {totalPages}
           </span>
         </div>
 
-        {/* Next text link */}
         <button
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages - 1}
-          className="text-blue-600 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+          className="text-primary-600 hover:text-primary-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium text-sm"
           aria-label="Next page"
         >
           Next
         </button>
 
-        {/* Last page */}
         <button
           type="button"
           onClick={() => onPageChange(totalPages - 1)}
           disabled={page >= totalPages - 1}
-          className="text-slate-400 hover:text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="text-ink-ghost hover:text-ink-dim disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           aria-label="Last page"
           title="Last page"
         >

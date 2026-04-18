@@ -24,7 +24,7 @@ export default function DropZone({
         role="button"
         tabIndex={0}
         aria-label="File drop zone"
-        className="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         onClick={() => inputRef.current?.click()}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
@@ -39,7 +39,7 @@ export default function DropZone({
         <Icon className="h-12 w-12 text-slate-300 mx-auto mb-3" />
         <p className="text-sm font-medium text-slate-700">
           {title}{' '}
-          <span className="text-blue-600">click to browse</span>
+          <span className="text-primary-600">click to browse</span>
         </p>
         {acceptLabel && (
           <p className="text-xs text-slate-400 mt-1">{acceptLabel}</p>

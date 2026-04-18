@@ -24,13 +24,13 @@ export default function CheckboxField({
         <input
           id={id}
           type="checkbox"
-          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 ml-2"
+          className="me-2 h-4 w-4 accent-primary-600 focus:ring-focus-ring not-checked:appearance-none not-checked:rounded not-checked:border not-checked:border-edge-strong not-checked:bg-surface-muted"
           {...props}
         />
       </div>
-      <div className="ml-3">
-        <span className="text-sm font-medium text-slate-700">{label}</span>
-        {hint && <p className="text-sm text-slate-500">{hint}</p>}
+      <div className="ms-3">
+        <span className="text-sm font-medium text-ink-dim">{label}</span>
+        {hint && <p className="text-sm text-ink-faint">{hint}</p>}
       </div>
     </label>
   );

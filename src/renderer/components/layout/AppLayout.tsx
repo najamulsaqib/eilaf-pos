@@ -12,7 +12,7 @@ export default function AppLayout({
   fullscreen = false,
 }: AppLayoutProps) {
   return (
-    <div className="flex h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 border border-slate-200">
+    <div className="flex h-screen bg-surface-raised border border-edge">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />

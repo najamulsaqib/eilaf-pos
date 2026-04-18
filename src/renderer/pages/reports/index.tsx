@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import AppLayout from '@components/layout/AppLayout';
 import Button from '@components/ui/Button';
+import TabBar from '@components/ui/TabBar';
 import LoadingSpinner from '@components/common/LoadingSpinner';
 import StatCard from '@components/common/StatCard';
 import { reportsApi, printApi } from '@services/db';
@@ -86,17 +87,17 @@ function fillHours(
   });
 }
 
-const BASE_CHART: ApexOptions = {
-  chart: {
-    toolbar: { show: false },
-    fontFamily: 'inherit',
-    animations: { enabled: true, speed: 400 },
-  },
-  grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
-  dataLabels: { enabled: false },
-  tooltip: { theme: 'light' },
-  legend: { show: false },
-};
+// Helper to get CSS variable colors for dark mode support
+function getChartColor(varName: string): string {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(varName)
+    .trim();
+}
+
+// Helper to detect if dark mode is enabled
+function isDarkMode(): boolean {
+  return document.documentElement.classList.contains('dark');
+}
 
 export default function ReportsPage() {
   const { t } = useTranslation();
@@ -106,6 +107,18 @@ export default function ReportsPage() {
   const [data, setData] = useState<IReportSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [printing, setPrinting] = useState(false);
+
+  // Chart base config — computed inside component so CSS vars are available
+  const BASE_CHART: ApexOptions = {
+    chart: {
+      toolbar: { show: false },
+      fontFamily: 'inherit',
+      animations: { enabled: true, speed: 400 },
+    },
+    grid: { borderColor: getChartColor('--color-edge'), strokeDashArray: 4 },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -145,7 +158,7 @@ export default function ReportsPage() {
   const revenueChart: ApexOptions = {
     ...BASE_CHART,
     chart: { ...BASE_CHART.chart, type: 'area', id: 'revenue' },
-    colors: ['#3b82f6'],
+    colors: ['#3b82f6'], // blue — keep as brand color
     stroke: { curve: 'smooth', width: 2.5 },
     fill: {
       type: 'gradient',
@@ -158,77 +171,102 @@ export default function ReportsPage() {
     },
     xaxis: {
       categories: days.map((d) => d.label),
-      labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -30 },
+      labels: {
+        style: { fontSize: '11px', colors: getChartColor('--color-ink-faint') },
+        rotate: -30,
+      },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
     yaxis: {
       labels: {
-        style: { fontSize: '11px', colors: '#94a3b8' },
+        style: { fontSize: '11px', colors: getChartColor('--color-ink-faint') },
         formatter: (v) => `Rs ${(v / 1000).toFixed(0)}k`,
       },
     },
-    tooltip: { y: { formatter: (v) => fmt(v) } },
+    tooltip: {
+      theme: isDarkMode() ? 'dark' : 'light',
+      y: { formatter: (v) => fmt(v) },
+    },
   };
 
   const billsChart: ApexOptions = {
     ...BASE_CHART,
     chart: { ...BASE_CHART.chart, type: 'bar', id: 'bills' },
-    colors: ['#8b5cf6'],
+    colors: ['#8b5cf6'], // purple — keep as brand color
     plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
     xaxis: {
       categories: days.map((d) => d.label),
-      labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -30 },
+      labels: {
+        style: { fontSize: '11px', colors: getChartColor('--color-ink-faint') },
+        rotate: -30,
+      },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
     yaxis: {
       labels: {
-        style: { fontSize: '11px', colors: '#94a3b8' },
+        style: { fontSize: '11px', colors: getChartColor('--color-ink-faint') },
         formatter: (v) => String(Math.round(v)),
       },
     },
-    tooltip: { y: { formatter: (v) => `${Math.round(v)} bills` } },
+    tooltip: {
+      theme: isDarkMode() ? 'dark' : 'light',
+      y: { formatter: (v) => `${Math.round(v)} bills` },
+    },
   };
 
   const peakHoursChart: ApexOptions = {
     ...BASE_CHART,
     chart: { ...BASE_CHART.chart, type: 'bar', id: 'peak' },
-    colors: ['#f59e0b'],
+    colors: ['#f59e0b'], // amber — keep as brand color
     plotOptions: { bar: { borderRadius: 3, columnWidth: '70%' } },
     xaxis: {
       categories: hours.map((h) => h.label),
-      labels: { style: { fontSize: '10px', colors: '#94a3b8' }, rotate: -45 },
+      labels: {
+        style: { fontSize: '10px', colors: getChartColor('--color-ink-faint') },
+        rotate: -45,
+      },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
     yaxis: {
       labels: {
-        style: { fontSize: '11px', colors: '#94a3b8' },
+        style: { fontSize: '11px', colors: getChartColor('--color-ink-faint') },
         formatter: (v) => `Rs ${(v / 1000).toFixed(0)}k`,
       },
     },
-    tooltip: { y: { formatter: (v) => fmt(v) } },
+    tooltip: {
+      theme: isDarkMode() ? 'dark' : 'light',
+      y: { formatter: (v) => fmt(v) },
+    },
   };
 
   const topItemsChart: ApexOptions = {
     ...BASE_CHART,
     chart: { ...BASE_CHART.chart, type: 'bar', id: 'top-items' },
-    colors: ['#10b981'],
+    colors: ['#7bb910'], // green — keep as brand color
     plotOptions: {
       bar: { horizontal: true, borderRadius: 4, barHeight: '60%' },
     },
     xaxis: {
       categories: topItems.map((i) => i.name),
       labels: {
-        style: { fontSize: '11px', colors: '#94a3b8' },
+        style: { fontSize: '11px', colors: getChartColor('--color-ink-faint') },
         formatter: (v) => `Rs ${(Number(v) / 1000).toFixed(0)}k`,
       },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
-    yaxis: { labels: { style: { fontSize: '11px', colors: '#64748b' } } },
-    tooltip: { y: { formatter: (v) => fmt(v) } },
+    yaxis: {
+      labels: {
+        style: { fontSize: '11px', colors: getChartColor('--color-ink-faint') },
+      },
+    },
+    tooltip: {
+      theme: isDarkMode() ? 'dark' : 'light',
+      y: { formatter: (v) => fmt(v) },
+    },
   };
 
   // ── Render ────────────────────────────────────────────────────────────────────
@@ -238,8 +276,8 @@ export default function ReportsPage() {
       <div className="space-y-5">
         {/* ── Toolbar ── */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
-            <label className="text-xs font-medium text-slate-500 shrink-0">
+          <div className="flex items-center gap-2 bg-surface border border-edge rounded-xl px-3 py-2 shadow-sm">
+            <label className="text-xs font-medium text-ink-faint shrink-0">
               {t('reports.from')}
             </label>
             <input
@@ -247,11 +285,11 @@ export default function ReportsPage() {
               value={from}
               max={to}
               onChange={(e) => setFrom(e.target.value)}
-              className="text-sm text-slate-800 bg-transparent focus:outline-none cursor-pointer"
+              className="text-sm text-ink bg-transparent focus:outline-none cursor-pointer"
             />
           </div>
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
-            <label className="text-xs font-medium text-slate-500 shrink-0">
+          <div className="flex items-center gap-2 bg-surface border border-edge rounded-xl px-3 py-2 shadow-sm">
+            <label className="text-xs font-medium text-ink-faint shrink-0">
               {t('reports.to')}
             </label>
             <input
@@ -260,7 +298,7 @@ export default function ReportsPage() {
               min={from}
               max={today()}
               onChange={(e) => setTo(e.target.value)}
-              className="text-sm text-slate-800 bg-transparent focus:outline-none cursor-pointer"
+              className="text-sm text-ink bg-transparent focus:outline-none cursor-pointer"
             />
           </div>
 
@@ -309,7 +347,7 @@ export default function ReportsPage() {
                 key={label}
                 type="button"
                 onClick={fn}
-                className="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-pointer"
+                className="px-2.5 py-1 text-xs font-medium rounded-lg bg-surface-muted text-ink-dim hover:bg-edge hover:text-ink transition-colors cursor-pointer"
               >
                 {label}
               </button>
@@ -329,34 +367,23 @@ export default function ReportsPage() {
         </div>
 
         {/* ── Tabs ── */}
-        <div className="flex gap-1 bg-slate-100 rounded-xl p-1 w-fit">
-          {[
+        <TabBar
+          tabs={[
             {
-              id: 'charts' as Tab,
+              id: 'charts',
               label: t('reports.tabCharts'),
               icon: ChartBarIcon,
             },
             {
-              id: 'report' as Tab,
+              id: 'report',
               label: t('reports.tabReport'),
               icon: TableCellsIcon,
             },
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                activeTab === id
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </button>
-          ))}
-        </div>
+          ]}
+          value={activeTab}
+          onChange={(id) => setActiveTab(id as Tab)}
+          variant="pills"
+        />
 
         {loading ? (
           <div className="flex items-center justify-center h-64">
@@ -371,7 +398,7 @@ export default function ReportsPage() {
                 label={t('reports.totalBills')}
                 value={data.totals.bills_count}
                 icon={DocumentTextIcon}
-                color="blue"
+                color="theme"
               />
               <StatCard
                 label={t('reports.totalRevenue')}
@@ -389,12 +416,12 @@ export default function ReportsPage() {
 
             {/* Revenue by day + Bills by day */}
             <div className="grid grid-cols-2 gap-5">
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                <p className="text-sm font-semibold text-slate-700 mb-4">
+              <div className="bg-surface rounded-2xl border border-edge shadow-sm p-5">
+                <p className="text-sm font-semibold text-ink-dim mb-4">
                   {t('reports.revenueByDay')}
                 </p>
                 {days.length === 0 ? (
-                  <div className="flex items-center justify-center h-40 text-slate-400 text-sm">
+                  <div className="flex items-center justify-center h-40 text-ink-ghost text-sm">
                     {t('common.empty')}
                   </div>
                 ) : (
@@ -411,12 +438,12 @@ export default function ReportsPage() {
                   />
                 )}
               </div>
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                <p className="text-sm font-semibold text-slate-700 mb-4">
+              <div className="bg-surface rounded-2xl border border-edge shadow-sm p-5">
+                <p className="text-sm font-semibold text-ink-dim mb-4">
                   {t('reports.billsByDay')}
                 </p>
                 {days.length === 0 ? (
-                  <div className="flex items-center justify-center h-40 text-slate-400 text-sm">
+                  <div className="flex items-center justify-center h-40 text-ink-ghost text-sm">
                     {t('common.empty')}
                   </div>
                 ) : (
@@ -436,11 +463,11 @@ export default function ReportsPage() {
             </div>
 
             {/* Peak hours */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-              <p className="text-sm font-semibold text-slate-700 mb-1">
+            <div className="bg-surface rounded-2xl border border-edge shadow-sm p-5">
+              <p className="text-sm font-semibold text-ink-dim mb-1">
                 {t('reports.peakHours')}
               </p>
-              <p className="text-xs text-slate-400 mb-4">
+              <p className="text-xs text-ink-ghost mb-4">
                 {t('reports.peakHoursDesc')}
               </p>
               <ReactApexChart
@@ -458,8 +485,8 @@ export default function ReportsPage() {
 
             {/* Top items */}
             {topItems.length > 0 && (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                <p className="text-sm font-semibold text-slate-700 mb-4">
+              <div className="bg-surface rounded-2xl border border-edge shadow-sm p-5">
+                <p className="text-sm font-semibold text-ink-dim mb-4">
                   {t('reports.topItems')}
                 </p>
                 <ReactApexChart
@@ -485,7 +512,7 @@ export default function ReportsPage() {
                 label={t('reports.totalBills')}
                 value={data.totals.bills_count}
                 icon={DocumentTextIcon}
-                color="blue"
+                color="theme"
               />
               <StatCard
                 label={t('reports.totalRevenue')}
@@ -503,15 +530,15 @@ export default function ReportsPage() {
 
             <div className="grid grid-cols-2 gap-5">
               {/* Sales by day table */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100">
-                  <p className="text-sm font-semibold text-slate-700">
+              <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-edge-muted">
+                  <p className="text-sm font-semibold text-ink-dim">
                     {t('reports.salesByDay')}
                   </p>
                 </div>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
+                    <tr className="bg-surface-muted text-xs text-ink-faint uppercase tracking-wide">
                       <th className="text-start px-5 py-2.5 font-medium">
                         {t('reports.day')}
                       </th>
@@ -523,26 +550,26 @@ export default function ReportsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-edge-muted">
                     {data.paymentsByDay.length === 0 ? (
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-5 py-8 text-center text-slate-400 text-xs"
+                          className="px-5 py-8 text-center text-ink-ghost text-xs"
                         >
                           {t('common.empty')}
                         </td>
                       </tr>
                     ) : (
                       data.paymentsByDay.map((row) => (
-                        <tr key={row.day} className="hover:bg-slate-50/50">
-                          <td className="px-5 py-2.5 text-slate-700 font-medium">
+                        <tr key={row.day} className="hover:bg-surface-muted/50">
+                          <td className="px-5 py-2.5 text-ink-dim font-medium">
                             {row.day}
                           </td>
-                          <td className="px-3 py-2.5 text-center text-slate-600">
+                          <td className="px-3 py-2.5 text-center text-ink-dim">
                             {row.bills}
                           </td>
-                          <td className="px-5 py-2.5 text-end font-semibold text-slate-800">
+                          <td className="px-5 py-2.5 text-end font-semibold text-ink">
                             {fmt(row.amount)}
                           </td>
                         </tr>
@@ -553,15 +580,15 @@ export default function ReportsPage() {
               </div>
 
               {/* Top items table */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100">
-                  <p className="text-sm font-semibold text-slate-700">
+              <div className="bg-surface rounded-2xl border border-edge shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-edge-muted">
+                  <p className="text-sm font-semibold text-ink-dim">
                     {t('reports.topItems')}
                   </p>
                 </div>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
+                    <tr className="bg-surface-muted text-xs text-ink-faint uppercase tracking-wide">
                       <th className="text-start px-5 py-2.5 font-medium">
                         {t('reports.item')}
                       </th>
@@ -573,26 +600,29 @@ export default function ReportsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody className="divide-y divide-edge-muted">
                     {topItems.length === 0 ? (
                       <tr>
                         <td
                           colSpan={3}
-                          className="px-5 py-8 text-center text-slate-400 text-xs"
+                          className="px-5 py-8 text-center text-ink-ghost text-xs"
                         >
                           {t('common.empty')}
                         </td>
                       </tr>
                     ) : (
                       topItems.map((item) => (
-                        <tr key={item.name} className="hover:bg-slate-50/50">
-                          <td className="px-5 py-2.5 text-slate-700 font-medium">
+                        <tr
+                          key={item.name}
+                          className="hover:bg-surface-muted/50"
+                        >
+                          <td className="px-5 py-2.5 text-ink-dim font-medium">
                             {item.name}
                           </td>
-                          <td className="px-3 py-2.5 text-center text-slate-600">
+                          <td className="px-3 py-2.5 text-center text-ink-dim">
                             {item.qty}
                           </td>
-                          <td className="px-5 py-2.5 text-end font-semibold text-slate-800">
+                          <td className="px-5 py-2.5 text-end font-semibold text-ink">
                             {fmt(item.amount)}
                           </td>
                         </tr>

@@ -309,14 +309,14 @@ export default function IProductsPage() {
       id: 'name',
       header: t('products.name'),
       render: (p: IProduct) => (
-        <span className="font-medium text-slate-900">{p.name}</span>
+        <span className="font-medium text-ink">{p.name}</span>
       ),
     },
     {
       id: 'barcode',
       header: t('products.barcode'),
       render: (p: IProduct) => (
-        <span className="font-mono text-xs text-slate-600">
+        <span className="font-mono text-xs text-ink-dim">
           {p.barcode ?? t('products.noBarcode')}
         </span>
       ),
@@ -327,7 +327,10 @@ export default function IProductsPage() {
       render: (p: IProduct) => (
         <div className="flex flex-col">
           {p.pricing_options.map((opt) => (
-            <span key={opt.id} className="font-semibold text-blue-700 text-xs">
+            <span
+              key={opt.id}
+              className="font-semibold text-primary-700 text-xs"
+            >
               Rs {opt.price.toLocaleString()} / {opt.unit}
             </span>
           ))}
@@ -338,7 +341,7 @@ export default function IProductsPage() {
       id: 'category',
       header: t('products.category'),
       render: (p: IProduct) => (
-        <span className="text-slate-500">{p.category ?? '—'}</span>
+        <span className="text-ink-faint">{p.category ?? '—'}</span>
       ),
     },
     {
@@ -347,13 +350,13 @@ export default function IProductsPage() {
       render: (p: IProduct) => (
         <div className="flex items-center gap-1 justify-end">
           <IconButton
-            icon={<PencilIcon className="w-4 h-4" />}
+            icon={PencilIcon}
             title={t('common.edit')}
             onClick={() => openEdit(p)}
             size="sm"
           />
           <IconButton
-            icon={<TrashIcon className="w-4 h-4" />}
+            icon={TrashIcon}
             title={t('common.delete')}
             variant="danger"
             onClick={() => setDeleteTarget(p)}
@@ -368,22 +371,20 @@ export default function IProductsPage() {
     <AppLayout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">
-            {t('products.title')}
-          </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <h1 className="text-xl font-bold text-ink">{t('products.title')}</h1>
+          <p className="text-sm text-ink-faint mt-0.5">
             {filtered.length} {t('products.total')}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
-            <MagnifyingGlassIcon className="w-4 h-4 text-slate-400 shrink-0" />
+          <div className="flex items-center gap-2 bg-surface border border-edge rounded-xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-focus-ring focus-within:border-focus-ring">
+            <MagnifyingGlassIcon className="w-4 h-4 text-ink-ghost shrink-0" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('common.search')}
-              className="text-sm text-slate-800 bg-transparent focus:outline-none w-44 placeholder:text-slate-400"
+              className="text-sm text-slate-800 bg-transparent focus:outline-none w-44 placeholder:text-slate-400 focus:w-64 transition-[width] duration-300"
             />
           </div>
           <Button icon={PlusIcon} onClick={openAdd}>
@@ -392,7 +393,7 @@ export default function IProductsPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="rounded-xl overflow-hidden border border-edge">
         {loading ? (
           <div className="flex items-center justify-center h-48">
             <LoadingSpinner size="md" />
@@ -412,10 +413,11 @@ export default function IProductsPage() {
         isOpen={formOpen}
         onClose={() => setFormOpen(false)}
         title={editing ? t('products.edit') : t('products.add')}
-        size="sm"
+        size="lg"
         maxHeight="max-h-[80vh]"
+        bodyClassName="px-5 py-5 sm:px-6"
         footer={
-          <div className="flex justify-end gap-2">
+          <div className="flex items-center justify-end gap-3">
             <Button
               variant="secondary"
               size="sm"
@@ -434,47 +436,59 @@ export default function IProductsPage() {
           </div>
         }
       >
-        <div className="space-y-4">
-          <TextField
-            id="p-name"
-            label={t('products.name')}
-            required
-            {...field('name')}
-          />
-
-          <TextField
-            id="p-barcode"
-            label={t('products.barcode')}
-            placeholder={t('products.barcodePlaceholder')}
-            readOnly={Boolean(editing?.barcode)}
-            suffix={
-              editing?.barcode ? (
-                <LockClosedIcon className="w-4 h-4 text-slate-400" />
-              ) : (
-                <IconButton
-                  icon={<ArrowPathIcon className="w-4 h-4" />}
-                  title={t('products.generateBarcode')}
-                  size="sm"
-                  variant="subtle"
-                  onClick={generateBarcode}
-                />
-              )
-            }
-            {...field('barcode')}
-          />
-
-          {editing?.barcode && (
-            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
-              <ExclamationTriangleIcon className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-700">
-                {t('products.barcodeLocked')}
-              </p>
+        <div className="space-y-5">
+          <section className="rounded-xl border border-edge bg-surface-raised p-4 sm:p-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <TextField
+                id="p-name"
+                label={t('products.name')}
+                required
+                {...field('name')}
+              />
+              <TextField
+                id="p-category"
+                label={t('products.category')}
+                placeholder={t('products.categoryPlaceholder')}
+                {...field('category')}
+              />
             </div>
-          )}
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-slate-700">
+            <div className="mt-4">
+              <TextField
+                id="p-barcode"
+                label={t('products.barcode')}
+                placeholder={t('products.barcodePlaceholder')}
+                readOnly={Boolean(editing?.barcode)}
+                suffix={
+                  editing?.barcode ? (
+                    <LockClosedIcon className="h-4 w-4 text-ink-ghost" />
+                  ) : (
+                    <IconButton
+                      icon={ArrowPathIcon}
+                      title={t('products.generateBarcode')}
+                      size="sm"
+                      variant="subtle"
+                      onClick={generateBarcode}
+                    />
+                  )
+                }
+                {...field('barcode')}
+              />
+            </div>
+
+            {editing?.barcode && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg border border-edge bg-surface px-3 py-2.5">
+                <ExclamationTriangleIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" />
+                <p className="text-xs text-ink-faint">
+                  {t('products.barcodeLocked')}
+                </p>
+              </div>
+            )}
+          </section>
+
+          <section className="space-y-3 rounded-xl border border-edge bg-surface p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-edge pb-3">
+              <p className="text-sm font-semibold text-ink">
                 {t('products.pricingOptions')}
               </p>
               <Button
@@ -487,36 +501,50 @@ export default function IProductsPage() {
               </Button>
             </div>
 
-            {form.pricingOptions.map((option, idx) => (
-              <div
-                key={`opt-${idx}`}
-                className="rounded-lg border border-slate-200 p-3 space-y-3"
-              >
-                <div className="grid grid-cols-2 gap-2">
-                  <TextField
-                    id={`p-option-unit-${idx}`}
-                    label={t('products.unit')}
-                    placeholder={t('products.unitPlaceholder')}
-                    value={option.unit}
-                    onChange={(e) =>
-                      updateOption(idx, { unit: e.target.value })
-                    }
-                  />
-                  <TextField
-                    id={`p-option-price-${idx}`}
-                    label={t('products.price')}
-                    type="number"
-                    min="0"
-                    prefix="Rs"
-                    value={option.price}
-                    onChange={(e) =>
-                      updateOption(idx, { price: e.target.value })
-                    }
-                  />
-                </div>
+            <div className="space-y-3">
+              {form.pricingOptions.map((option, idx) => (
+                <div
+                  key={`opt-${idx}`}
+                  className="rounded-xl border border-edge bg-surface-raised p-3 sm:p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                      {t('products.unit')} #{idx + 1}
+                    </p>
+                    <IconButton
+                      icon={TrashIcon}
+                      title={t('products.removePricingOption')}
+                      variant="danger"
+                      disabled={form.pricingOptions.length <= 1}
+                      onClick={() => removeOption(idx)}
+                      size="sm"
+                    />
+                  </div>
 
-                <div className="flex items-center justify-between gap-2">
-                  <div className="grid grid-cols-1 gap-1">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <TextField
+                      id={`p-option-unit-${idx}`}
+                      label={t('products.unit')}
+                      placeholder={t('products.unitPlaceholder')}
+                      value={option.unit}
+                      onChange={(e) =>
+                        updateOption(idx, { unit: e.target.value })
+                      }
+                    />
+                    <TextField
+                      id={`p-option-price-${idx}`}
+                      label={t('products.price')}
+                      type="number"
+                      min="0"
+                      prefix="Rs"
+                      value={option.price}
+                      onChange={(e) =>
+                        updateOption(idx, { price: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="mt-3 grid gap-1 rounded-lg border border-edge bg-surface p-2">
                     <CheckboxField
                       id={`p-option-decimal-${idx}`}
                       label={t('products.allowDecimalQty')}
@@ -532,26 +560,10 @@ export default function IProductsPage() {
                       onChange={() => setDefaultOption(idx)}
                     />
                   </div>
-
-                  <IconButton
-                    icon={<TrashIcon className="w-4 h-4" />}
-                    title={t('products.removePricingOption')}
-                    variant="danger"
-                    disabled={form.pricingOptions.length <= 1}
-                    onClick={() => removeOption(idx)}
-                    size="sm"
-                  />
                 </div>
-              </div>
-            ))}
-          </div>
-
-          <TextField
-            id="p-category"
-            label={t('products.category')}
-            placeholder={t('products.categoryPlaceholder')}
-            {...field('category')}
-          />
+              ))}
+            </div>
+          </section>
         </div>
       </Modal>
 

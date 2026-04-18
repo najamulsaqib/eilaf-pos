@@ -1,6 +1,11 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import LoadingSpinner from '@components/common/LoadingSpinner';
+import StatCard from '@components/common/StatCard';
+import AppLayout from '@components/layout/AppLayout';
+import DataTable from '@components/table/DataTable';
+import Pagination from '@components/table/Pagination';
+import Button from '@components/ui/Button';
+import IconButton from '@components/ui/IconButton';
+import Modal from '@components/ui/Modal';
 import {
   BanknotesIcon,
   DocumentTextIcon,
@@ -8,16 +13,11 @@ import {
   TrashIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
-import AppLayout from '@components/layout/AppLayout';
-import StatCard from '@components/common/StatCard';
-import LoadingSpinner from '@components/common/LoadingSpinner';
-import EmptyState from '@components/common/EmptyState';
-import Modal from '@components/ui/Modal';
-import Button from '@components/ui/Button';
-import Pagination from '@components/table/Pagination';
-import DataTable from '@components/table/DataTable';
 import { useBills } from '@hooks/useBills';
 import { billsApi, printApi } from '@services/db';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 function fmt(n: number) {
   return `Rs ${n.toLocaleString()}`;
@@ -57,7 +57,6 @@ export default function BillsPage() {
   const [selected, setSelected] = useState<IBill | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [printingBill, setPrintingBill] = useState(false);
-  const [deletingBill, setDeletingBill] = useState(false);
 
   const handleRowClick = async (bill: IBill) => {
     setLoadingDetail(true);
@@ -85,15 +84,12 @@ export default function BillsPage() {
 
   const handleDeleteBill = async () => {
     if (!selected) return;
-    setDeletingBill(true);
     try {
       await billsApi.delete(selected.id);
       setSelected(null);
       reload();
     } catch {
       toast.error(t('common.error'));
-    } finally {
-      setDeletingBill(false);
     }
   };
 
@@ -102,7 +98,7 @@ export default function BillsPage() {
       id: 'bill_number',
       header: t('bills.number'),
       render: (b: IBill) => (
-        <span className="font-mono font-semibold text-blue-700">
+        <span className="font-mono font-semibold text-primary-700">
           {b.bill_number}
         </span>
       ),
@@ -112,9 +108,7 @@ export default function BillsPage() {
       header: t('bills.customer'),
       render: (b: IBill) => (
         <span
-          className={
-            b.customer_name ? 'text-slate-900' : 'text-slate-400 italic'
-          }
+          className={b.customer_name ? 'text-ink' : 'text-ink-faint italic'}
         >
           {b.customer_name || t('bills.noCustomer')}
         </span>
@@ -124,21 +118,21 @@ export default function BillsPage() {
       id: 'item_count',
       header: t('bills.items'),
       render: (b: IBill) => (
-        <span className="text-slate-600">{b.item_count ?? 0}</span>
+        <span className="text-ink">{b.item_count ?? 0}</span>
       ),
     },
     {
       id: 'total',
       header: t('bills.total'),
       render: (b: IBill) => (
-        <span className="font-semibold text-slate-900">{fmt(b.total)}</span>
+        <span className="font-semibold text-ink">{fmt(b.total)}</span>
       ),
     },
     {
       id: 'created_at',
       header: t('bills.date'),
       render: (b: IBill) => (
-        <span className="text-sm text-slate-500">
+        <span className="text-sm text-ink-faint">
           {formatDate(b.created_at)}
         </span>
       ),
@@ -153,7 +147,7 @@ export default function BillsPage() {
           label={t('pos.todayBills')}
           value={stats.count}
           icon={DocumentTextIcon}
-          color="blue"
+          color="theme"
         />
         <StatCard
           label={t('pos.todayRevenue')}
@@ -164,21 +158,15 @@ export default function BillsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="rounded-xl overflow-hidden border border-edge">
         {loading ? (
           <div className="flex items-center justify-center h-48">
             <LoadingSpinner size="md" />
           </div>
-        ) : bills.length === 0 ? (
-          <EmptyState
-            icon={<DocumentTextIcon className="w-12 h-12" />}
-            title={t('bills.empty')}
-            description={t('bills.emptyDesc')}
-          />
         ) : (
           <DataTable
             columns={columns}
-            rows={bills}
+            rows={bills || []}
             getRowId={(b) => b.id}
             onRowClick={handleRowClick}
             footer={
@@ -209,14 +197,11 @@ export default function BillsPage() {
           selected ? (
             <div className="flex justify-between items-center">
               {isDev && (
-                <Button
+                <IconButton
                   variant="danger"
                   icon={TrashIcon}
-                  busy={deletingBill}
                   onClick={handleDeleteBill}
-                >
-                  {t('common.delete')}
-                </Button>
+                />
               )}
               <div className="ms-auto">
                 <Button
@@ -236,72 +221,108 @@ export default function BillsPage() {
             <LoadingSpinner size="md" />
           </div>
         ) : selected ? (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {/* Meta */}
-            <div className="flex flex-wrap gap-4 text-sm text-slate-600 pb-3 border-b border-slate-100">
-              <span className="flex items-center gap-1.5">
-                <UserIcon className="w-4 h-4 text-slate-400" />
-                {selected.customer_name || t('bills.noCustomer')}
-              </span>
-              <span className="text-slate-400">
-                {formatDate(selected.created_at)}
-              </span>
+            <div className="rounded-xl border border-edge bg-surface-raised p-4">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="min-w-0 space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-ink-ghost">
+                    {t('bills.customer')}
+                  </p>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge bg-surface text-ink-faint">
+                      <UserIcon className="h-4 w-4" />
+                    </span>
+                    <p className="truncate text-sm font-medium text-ink">
+                      {selected.customer_name || t('bills.noCustomer')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-[18rem]">
+                  <div className="rounded-lg border border-edge bg-surface px-3 py-2">
+                    <p className="text-[11px] uppercase tracking-wide text-ink-ghost">
+                      {t('bills.date')}
+                    </p>
+                    <p className="mt-0.5 text-xs font-medium text-ink-faint">
+                      {formatDate(selected.created_at)}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-edge bg-surface px-3 py-2">
+                    <p className="text-[11px] uppercase tracking-wide text-ink-ghost">
+                      {t('bills.items')}
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-ink">
+                      {selected.items?.length ?? 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Items table */}
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wide">
-                  <th className="text-start pb-2 font-medium">
-                    {t('bills.detail.name')}
-                  </th>
-                  <th className="text-center pb-2 font-medium w-16">
-                    {t('bills.detail.qty')}
-                  </th>
-                  <th className="text-end pb-2 font-medium w-24">
-                    {t('bills.detail.price')}
-                  </th>
-                  <th className="text-end pb-2 font-medium w-24">
-                    {t('bills.detail.total')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {(selected.items ?? []).map((item: IBillItem) => (
-                  <tr key={item.id}>
-                    <td className="py-2 text-slate-900 font-medium">
-                      {item.name}
-                    </td>
-                    <td className="py-2 text-center text-slate-600">
-                      {fmtQty(item.quantity)}
-                      {item.unit ? ` ${item.unit}` : ''}
-                    </td>
-                    <td className="py-2 text-end text-slate-600">
-                      {fmt(item.price)}
-                    </td>
-                    <td className="py-2 text-end font-semibold text-slate-900">
-                      {fmt(item.total)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-hidden rounded-xl border border-edge bg-surface">
+              <div className="border-b border-edge bg-surface-muted px-4 py-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                  {t('bills.items')}
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-edge text-xs uppercase tracking-wide text-ink-faint">
+                      <th className="pb-2 ps-4 pt-3 text-start font-medium">
+                        {t('bills.detail.name')}
+                      </th>
+                      <th className="w-20 pb-2 pt-3 text-center font-medium">
+                        {t('bills.detail.qty')}
+                      </th>
+                      <th className="w-28 pb-2 pe-4 pt-3 text-end font-medium">
+                        {t('bills.detail.price')}
+                      </th>
+                      <th className="w-28 pb-2 pe-4 pt-3 text-end font-medium">
+                        {t('bills.detail.total')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-edge">
+                    {(selected.items ?? []).map((item: IBillItem) => (
+                      <tr key={item.id} className="hover:bg-surface-raised/60">
+                        <td className="py-2.5 ps-4 font-medium text-ink">
+                          {item.name}
+                        </td>
+                        <td className="py-2.5 text-center text-ink-faint">
+                          {fmtQty(item.quantity)}
+                          {item.unit ? ` ${item.unit}` : ''}
+                        </td>
+                        <td className="py-2.5 pe-4 text-end text-ink-faint">
+                          {fmt(item.price)}
+                        </td>
+                        <td className="py-2.5 pe-4 text-end font-semibold text-ink">
+                          {fmt(item.total)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
             {/* Totals */}
-            <div className="border-t border-slate-200 pt-3 space-y-1.5 text-sm">
-              <div className="flex justify-between text-slate-500">
+            <div className="space-y-1.5 rounded-xl border border-edge bg-surface-raised p-4 text-sm">
+              <div className="flex items-center justify-between text-ink-faint">
                 <span>{t('bills.detail.subtotal')}</span>
                 <span>{fmt(selected.subtotal)}</span>
               </div>
               {selected.discount > 0 && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex items-center justify-between text-primary-700">
                   <span>{t('pos.discount')}</span>
                   <span>- {fmt(selected.discount)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-slate-100">
+              <div className="flex items-center justify-between border-t border-edge pt-2 text-base font-bold text-ink">
                 <span>{t('pos.total')}</span>
-                <span className="text-blue-700">{fmt(selected.total)}</span>
+                <span className="text-primary-700">{fmt(selected.total)}</span>
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ import Settings from '@pages/settings';
 import LoginPage from '@pages/auth/Login';
 import { LocaleProvider } from '@contexts/LocaleContext';
 import { AuthProvider, useAuth } from '@contexts/AuthContext';
+import { ThemeProvider } from '@contexts/ThemeContext';
 import LoadingSpinner from '@components/common/LoadingSpinner';
 import '@i18n/index';
 import './styles.css';
@@ -17,7 +18,7 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-surface-raised">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -42,11 +43,13 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <LocaleProvider>
-      <AuthProvider>
-        <AppRoutes />
-        <Toaster position="top-right" richColors closeButton />
-      </AuthProvider>
-    </LocaleProvider>
+    <ThemeProvider>
+      <LocaleProvider>
+        <AuthProvider>
+          <AppRoutes />
+          <Toaster position="top-right" richColors closeButton />
+        </AuthProvider>
+      </LocaleProvider>
+    </ThemeProvider>
   );
 }

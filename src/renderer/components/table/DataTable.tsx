@@ -59,7 +59,6 @@ function buildPinOffsets<T>(
 ): Record<string, number> {
   const offsets: Record<string, number> = {};
 
-  // Left-pinned: accumulate left-to-right
   let cumLeft = 0;
   for (const col of columns) {
     if (getPinnedSide(col.pinned) === 'left') {
@@ -68,7 +67,6 @@ function buildPinOffsets<T>(
     }
   }
 
-  // Right-pinned: accumulate right-to-left (last column in array = rightmost)
   let cumRight = 0;
   for (const col of [...columns].reverse()) {
     if (getPinnedSide(col.pinned) === 'right') {
@@ -116,15 +114,15 @@ function SortIcon({
       <ChevronUpIcon
         className={`h-3 w-3 transition-colors ${
           active && direction === 'asc'
-            ? 'text-blue-500'
-            : 'text-slate-300 group-hover:text-slate-400'
+            ? 'text-primary-500'
+            : 'text-ink-ghost group-hover:text-ink-faint'
         }`}
       />
       <ChevronDownIcon
         className={`h-3 w-3 transition-colors ${
           active && direction === 'desc'
-            ? 'text-blue-500'
-            : 'text-slate-300 group-hover:text-slate-400'
+            ? 'text-primary-500'
+            : 'text-ink-ghost group-hover:text-ink-faint'
         }`}
       />
     </span>
@@ -137,12 +135,11 @@ function getPinnedClasses(
 ): string {
   const side = getPinnedSide(pinned);
   if (!side) return '';
-  const bg = isHeader ? 'bg-slate-50' : 'bg-white';
+  const bg = isHeader ? 'bg-surface-raised' : 'bg-surface';
   if (side === 'left') {
-    return `sticky z-10 ${bg} after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-slate-200`;
+    return `sticky z-10 ${bg} after:absolute after:inset-y-0 after:right-0 after:w-px after:bg-edge`;
   }
-  // right-pinned: shadow divider on the left edge
-  return `sticky z-10 ${bg} after:absolute after:inset-y-0 after:left-0 after:w-px after:bg-slate-200`;
+  return `sticky z-10 ${bg} after:absolute after:inset-y-0 after:left-0 after:w-px after:bg-edge`;
 }
 
 export default function DataTable<T>({
@@ -175,8 +172,8 @@ export default function DataTable<T>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-slate-50">
+      <table className="min-w-full divide-y divide-edge">
+        <thead className="bg-surface-raised">
           <tr>
             {columns.map((column) => {
               const isSorted = sortState?.key === column.id;
@@ -196,13 +193,13 @@ export default function DataTable<T>({
                   key={column.id}
                   scope="col"
                   style={{ ...sizeStyle, ...pinnedStyle }}
-                  className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${alignClasses[align]} ${isSorted ? 'text-blue-700' : 'text-slate-700'} ${pinnedClasses} ${column.className || ''}`}
+                  className={`px-6 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${alignClasses[align]} ${isSorted ? 'text-primary-700 dark:text-primary-400' : 'text-ink-dim'} ${pinnedClasses} ${column.className || ''}`}
                 >
                   {column.sortable ? (
                     <button
                       type="button"
                       onClick={() => handleSort(column.id, column.sortable)}
-                      className="group flex items-center justify-between w-full hover:text-slate-900 transition-colors whitespace-nowrap cursor-pointer"
+                      className="group flex items-center justify-between w-full hover:text-ink transition-colors whitespace-nowrap cursor-pointer"
                     >
                       {column.header}
                       <SortIcon
@@ -219,12 +216,12 @@ export default function DataTable<T>({
           </tr>
         </thead>
 
-        <tbody className="bg-white divide-y divide-slate-200">
+        <tbody className="bg-surface divide-y divide-edge">
           {rows.length ? (
             rows.map((row) => (
               <tr
                 key={getRowId(row)}
-                className={`hover:bg-slate-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+                className={`hover:bg-surface-raised transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((column) => {
@@ -260,8 +257,8 @@ export default function DataTable<T>({
             <tr>
               <td colSpan={columns.length} className="px-6 py-16 text-center">
                 <div className="flex flex-col items-center gap-2">
-                  <BugAntIcon className="h-10 w-10 text-slate-500" />
-                  <p className="text-sm text-slate-500">{emptyMessage}</p>
+                  <BugAntIcon className="h-10 w-10 text-ink-faint" />
+                  <p className="text-sm text-ink-faint">{emptyMessage}</p>
                 </div>
               </td>
             </tr>

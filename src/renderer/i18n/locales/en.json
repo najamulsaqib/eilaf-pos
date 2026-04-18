@@ -44,7 +44,14 @@
     "app": {
       "title": "App Preferences",
       "desc": "Configure the app to suit your workflow",
-      "navDesc": "Language, sidebar"
+      "navDesc": "Language, theme, sidebar"
+    },
+    "theme": {
+      "label": "Theme",
+      "hint": "Choose the color theme for the application. Changes apply instantly.",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
     },
     "sidebar": {
       "label": "Sidebar style",
@@ -86,7 +93,7 @@
     "allCategories": "All",
     "customItem": "Custom Item",
     "customItemName": "Item name",
-    "customItemNamePlaceholder": "e.g. Repair service",
+    "customItemNamePlaceholder": "e.g. Item name",
     "customItemPrice": "Price (Rs)",
     "addToBill": "Add to Bill",
     "currentBill": "Current Bill",
